@@ -1,0 +1,266 @@
+.cover-letter-card {
+  margin: 20px 0;
+
+  mat-card-header {
+    margin-bottom: 20px;
+
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.5rem;
+      color: #1976d2;
+
+      mat-icon {
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
+      }
+    }
+  }
+
+  mat-card-content {
+    padding: 20px;
+  }
+}
+
+.premium-notice {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 30px;
+  border-radius: 12px;
+  text-align: center;
+  margin-bottom: 20px;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 15px;
+  }
+
+  p {
+    font-size: 1.1rem;
+    margin: 15px 0;
+  }
+
+  button {
+    margin-top: 15px;
+    background: white;
+    color: #667eea;
+    font-weight: 600;
+
+    &:hover {
+      background: #f5f5f5;
+    }
+  }
+}
+
+.input-section {
+  margin: 20px 0;
+
+  .full-width {
+    width: 100%;
+  }
+
+  .generate-btn {
+    display: block;
+    margin: 20px auto;
+    padding: 12px 30px;
+    font-size: 1rem;
+
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+
+  .hint {
+    text-align: center;
+    color: #666;
+    font-size: 0.9rem;
+    font-style: italic;
+    margin-top: 10px;
+  }
+}
+
+.loading-section {
+  text-align: center;
+  padding: 40px 20px;
+
+  mat-spinner {
+    margin: 0 auto 20px;
+  }
+
+  p {
+    color: #666;
+    font-size: 1rem;
+  }
+}
+
+.cover-letter-section {
+  margin-top: 20px;
+
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 8px 8px 0 0;
+    border-bottom: 2px solid #1976d2;
+
+    .stats {
+      display: flex;
+      gap: 20px;
+
+      .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: #666;
+        font-size: 0.9rem;
+
+        mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+      }
+    }
+
+    .actions {
+      display: flex;
+      gap: 5px;
+    }
+  }
+
+  .cover-letter-display {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 0 0 8px 8px;
+    padding: 30px;
+    min-height: 400px;
+
+    .letter-content {
+      font-family: 'Times New Roman', serif;
+      font-size: 1rem;
+      line-height: 1.8;
+      color: #333;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+  }
+
+  .cover-letter-editor {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 0 0 8px 8px;
+    padding: 20px;
+
+    .full-width {
+      width: 100%;
+    }
+
+    .editor-textarea {
+      font-family: 'Times New Roman', serif;
+      font-size: 1rem;
+      line-height: 1.8;
+    }
+  }
+
+  .action-buttons {
+    margin-top: 20px;
+    text-align: center;
+
+    button {
+      margin: 0 10px;
+
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+  }
+
+  p {
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .cover-letter-card {
+    mat-card-content {
+      padding: 15px;
+    }
+  }
+
+  .cover-letter-section {
+    .toolbar {
+      flex-direction: column;
+      gap: 15px;
+      align-items: flex-start;
+
+      .stats {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+    }
+
+    .cover-letter-display {
+      padding: 20px;
+
+      .letter-content {
+        font-size: 0.95rem;
+      }
+    }
+  }
+
+  .premium-notice {
+    padding: 20px;
+
+    mat-icon {
+      font-size: 36px;
+      width: 36px;
+      height: 36px;
+    }
+
+    p {
+      font-size: 1rem;
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .toolbar,
+  .action-buttons {
+    display: none;
+  }
+
+  .cover-letter-display {
+    border: none;
+    padding: 0;
+  }
+}

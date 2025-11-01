@@ -1,0 +1,319 @@
+.report-preview-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+  }
+
+  p {
+    margin: 16px 0;
+    color: #666;
+    font-size: 16px;
+  }
+
+  button {
+    margin-top: 16px;
+  }
+}
+
+.report-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+// Summary Card
+.summary-card {
+  mat-card-content {
+    padding-top: 16px;
+  }
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 24px;
+}
+
+.summary-item {
+  text-align: center;
+}
+
+.summary-label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.summary-value {
+  font-size: 32px;
+  font-weight: bold;
+
+  &.score-high {
+    color: #4caf50;
+  }
+
+  &.score-medium {
+    color: #ff9800;
+  }
+
+  &.score-low {
+    color: #f44336;
+  }
+}
+
+// Score Breakdown Card
+.score-breakdown-card {
+  mat-card-content {
+    padding-top: 16px;
+  }
+}
+
+.breakdown-item {
+  display: grid;
+  grid-template-columns: 120px 1fr 80px;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.breakdown-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.breakdown-bar {
+  height: 24px;
+  background-color: #e0e0e0;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+.breakdown-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+  border-radius: 12px;
+
+  &.score-high {
+    background-color: #4caf50;
+  }
+
+  &.score-medium {
+    background-color: #ff9800;
+  }
+
+  &.score-low {
+    background-color: #f44336;
+  }
+}
+
+.breakdown-value {
+  font-size: 14px;
+  font-weight: 600;
+  text-align: right;
+  color: #333;
+}
+
+// Recommendations Card
+.recommendations-card {
+  mat-card-content {
+    padding-top: 16px;
+  }
+}
+
+.recommendation-item {
+  padding: 16px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  margin-bottom: 12px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.recommendation-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.recommendation-category {
+  font-size: 12px;
+  color: #666;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.recommendation-message {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+}
+
+// JD Match Card
+.jd-match-card {
+  mat-card-content {
+    padding-top: 16px;
+  }
+}
+
+.match-percentage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.match-label {
+  font-size: 18px;
+  font-weight: 500;
+  color: #666;
+}
+
+.match-value {
+  font-size: 36px;
+  font-weight: bold;
+
+  &.score-high {
+    color: #4caf50;
+  }
+
+  &.score-medium {
+    color: #ff9800;
+  }
+
+  &.score-low {
+    color: #f44336;
+  }
+}
+
+.keywords-section {
+  margin-bottom: 24px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  h4 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+  }
+}
+
+.keywords-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+// AI Suggestions Card
+.ai-suggestions-card {
+  mat-card-header {
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      mat-icon {
+        color: #9c27b0;
+      }
+    }
+  }
+
+  mat-card-content {
+    padding-top: 16px;
+  }
+}
+
+.ai-suggestion-item {
+  padding: 16px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  margin-bottom: 16px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.suggestion-original,
+.suggestion-improved {
+  margin-bottom: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  strong {
+    color: #666;
+    display: block;
+    margin-bottom: 4px;
+  }
+}
+
+.suggestion-improved {
+  color: #1976d2;
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .report-preview-container {
+    padding: 12px;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .breakdown-item {
+    grid-template-columns: 100px 1fr 60px;
+    gap: 12px;
+  }
+
+  .match-percentage {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .match-label {
+    font-size: 16px;
+  }
+
+  .match-value {
+    font-size: 28px;
+  }
+}

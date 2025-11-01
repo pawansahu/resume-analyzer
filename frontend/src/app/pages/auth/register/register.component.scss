@@ -1,0 +1,75 @@
+.register-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.register-card {
+  width: 100%;
+  max-width: 500px;
+  padding: 20px;
+
+  mat-card-header {
+    margin-bottom: 24px;
+    
+    mat-card-title {
+      font-size: 1.75rem;
+      text-align: center;
+      color: #333;
+    }
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .name-row {
+    display: flex;
+    gap: 16px;
+
+    @media (max-width: 600px) {
+      flex-direction: column;
+      gap: 16px;
+    }
+  }
+
+  .full-width {
+    width: 100%;
+  }
+
+  .half-width {
+    flex: 1;
+  }
+
+  .error-message {
+    color: #f44336;
+    font-size: 0.875rem;
+    margin-top: -8px;
+    margin-bottom: 8px;
+  }
+
+  .links {
+    margin-top: 24px;
+    text-align: center;
+
+    p {
+      color: #666;
+      font-size: 0.875rem;
+    }
+
+    a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}

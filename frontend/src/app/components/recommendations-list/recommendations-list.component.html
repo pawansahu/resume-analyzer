@@ -1,0 +1,134 @@
+<mat-card class="recommendations-card">
+  <mat-card-header>
+    <mat-card-title>
+      Recommendations
+      <span class="recommendation-count" *ngIf="recommendations.length > 0">
+        ({{ recommendations.length }})
+      </span>
+    </mat-card-title>
+    <mat-card-subtitle>Actionable steps to improve your ATS score</mat-card-subtitle>
+  </mat-card-header>
+  
+  <mat-card-content>
+    <!-- Critical Issues Alert -->
+    <div class="critical-alert" *ngIf="hasCriticalIssues">
+      <mat-icon class="alert-icon">error</mat-icon>
+      <div class="alert-content">
+        <h3>Critical Issues Detected</h3>
+        <p>Your resume has critical issues that may prevent it from passing ATS screening. Address these first!</p>
+      </div>
+    </div>
+
+    <!-- No Recommendations -->
+    <div class="no-recommendations" *ngIf="recommendations.length === 0">
+      <mat-icon class="success-icon">check_circle</mat-icon>
+      <h3>Great Job!</h3>
+      <p>Your resume looks excellent. No major recommendations at this time.</p>
+    </div>
+
+    <!-- Critical Recommendations -->
+    <div class="recommendation-section" *ngIf="criticalRecommendations.length > 0">
+      <h3 class="section-title critical">
+        <mat-icon>error</mat-icon>
+        Critical Issues ({{ criticalRecommendations.length }})
+      </h3>
+      
+      <mat-accordion class="recommendations-accordion">
+        <mat-expansion-panel *ngFor="let rec of criticalRecommendations" class="recommendation-panel critical">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon class="category-icon">{{ getCategoryIcon(rec.category) }}</mat-icon>
+              <span class="recommendation-title">{{ rec.title }}</span>
+            </mat-panel-title>
+            <mat-panel-description>
+              <mat-chip class="impact-chip" [class]="rec.impact">
+                {{ getImpactLabel(rec.impact) }}
+              </mat-chip>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          
+          <div class="recommendation-content">
+            <p class="description">{{ rec.description }}</p>
+            
+            <div class="action-items">
+              <h4>Action Items:</h4>
+              <ul>
+                <li *ngFor="let item of rec.actionItems">{{ item }}</li>
+              </ul>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+
+    <!-- Important Recommendations -->
+    <div class="recommendation-section" *ngIf="importantRecommendations.length > 0">
+      <h3 class="section-title important">
+        <mat-icon>warning</mat-icon>
+        Important Improvements ({{ importantRecommendations.length }})
+      </h3>
+      
+      <mat-accordion class="recommendations-accordion">
+        <mat-expansion-panel *ngFor="let rec of importantRecommendations" class="recommendation-panel important">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon class="category-icon">{{ getCategoryIcon(rec.category) }}</mat-icon>
+              <span class="recommendation-title">{{ rec.title }}</span>
+            </mat-panel-title>
+            <mat-panel-description>
+              <mat-chip class="impact-chip" [class]="rec.impact">
+                {{ getImpactLabel(rec.impact) }}
+              </mat-chip>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          
+          <div class="recommendation-content">
+            <p class="description">{{ rec.description }}</p>
+            
+            <div class="action-items">
+              <h4>Action Items:</h4>
+              <ul>
+                <li *ngFor="let item of rec.actionItems">{{ item }}</li>
+              </ul>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+
+    <!-- Suggested Recommendations -->
+    <div class="recommendation-section" *ngIf="suggestedRecommendations.length > 0">
+      <h3 class="section-title suggested">
+        <mat-icon>info</mat-icon>
+        Suggested Enhancements ({{ suggestedRecommendations.length }})
+      </h3>
+      
+      <mat-accordion class="recommendations-accordion">
+        <mat-expansion-panel *ngFor="let rec of suggestedRecommendations" class="recommendation-panel suggested">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon class="category-icon">{{ getCategoryIcon(rec.category) }}</mat-icon>
+              <span class="recommendation-title">{{ rec.title }}</span>
+            </mat-panel-title>
+            <mat-panel-description>
+              <mat-chip class="impact-chip" [class]="rec.impact">
+                {{ getImpactLabel(rec.impact) }}
+              </mat-chip>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          
+          <div class="recommendation-content">
+            <p class="description">{{ rec.description }}</p>
+            
+            <div class="action-items">
+              <h4>Action Items:</h4>
+              <ul>
+                <li *ngFor="let item of rec.actionItems">{{ item }}</li>
+              </ul>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </mat-card-content>
+</mat-card>

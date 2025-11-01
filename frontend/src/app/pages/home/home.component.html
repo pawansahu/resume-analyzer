@@ -1,0 +1,70 @@
+<div class="home-container">
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <h1>AI-Powered Resume Analyzer</h1>
+      <p class="subtitle">
+        Get instant ATS score, keyword matching, and AI-powered improvements for your resume
+      </p>
+      <div class="cta-buttons">
+        <button mat-raised-button color="primary" routerLink="/register">
+          Get Started Free
+        </button>
+        <button mat-stroked-button routerLink="/pricing">
+          View Pricing
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <div class="container">
+      <h2 class="text-center">Powerful Features</h2>
+      <div class="features-grid">
+        <mat-card *ngFor="let feature of features" class="feature-card">
+          <mat-card-content>
+            <mat-icon class="feature-icon">{{ feature.icon }}</mat-icon>
+            <h3>{{ feature.title }}</h3>
+            <p>{{ feature.description }}</p>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="how-it-works">
+    <div class="container">
+      <h2 class="text-center">How It Works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3>Upload Resume</h3>
+          <p>Upload your resume in PDF or DOCX format</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3>Get Analysis</h3>
+          <p>Receive instant ATS score and detailed feedback</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3>Improve & Download</h3>
+          <p>Apply suggestions and download your improved resume</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="container text-center">
+      <h2>Ready to Optimize Your Resume?</h2>
+      <p>Join thousands of job seekers who improved their resumes</p>
+      <button mat-raised-button color="accent" routerLink="/register">
+        Start Free Analysis
+      </button>
+    </div>
+  </section>
+</div>

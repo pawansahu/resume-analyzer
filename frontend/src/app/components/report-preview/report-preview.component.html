@@ -1,0 +1,178 @@
+<div class="report-preview-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading report preview...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <mat-icon color="warn">error</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-raised-button color="primary" (click)="retry()">
+      <mat-icon>refresh</mat-icon>
+      Retry
+    </button>
+  </div>
+
+  <!-- Report Content -->
+  <div *ngIf="reportData && !loading" class="report-content">
+    <!-- Summary Section -->
+    <mat-card class="summary-card">
+      <mat-card-header>
+        <mat-card-title>Report Summary</mat-card-title>
+        <mat-card-subtitle>
+          Generated on {{ reportData.summary.generatedAt | date:'medium' }}
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <div class="summary-label">ATS Score</div>
+            <div class="summary-value" [ngClass]="getScoreClass(reportData.summary.totalScore)">
+              {{ reportData.summary.totalScore }}/100
+            </div>
+          </div>
+          
+          <div class="summary-item" *ngIf="reportData.summary.matchPercentage !== null">
+            <div class="summary-label">JD Match</div>
+            <div class="summary-value" [ngClass]="getScoreClass(reportData.summary.matchPercentage)">
+              {{ reportData.summary.matchPercentage }}%
+            </div>
+          </div>
+          
+          <div class="summary-item">
+            <div class="summary-label">Critical Issues</div>
+            <div class="summary-value" [ngClass]="reportData.summary.criticalIssues > 0 ? 'score-low' : 'score-high'">
+              {{ reportData.summary.criticalIssues }}
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- ATS Score Breakdown -->
+    <mat-card class="score-breakdown-card">
+      <mat-card-header>
+        <mat-card-title>ATS Score Breakdown</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="breakdown-item">
+          <div class="breakdown-label">Structure</div>
+          <div class="breakdown-bar">
+            <div class="breakdown-fill" 
+                 [style.width.%]="(reportData.atsScore.breakdown.structure / 25) * 100"
+                 [ngClass]="getScoreClass((reportData.atsScore.breakdown.structure / 25) * 100)">
+            </div>
+          </div>
+          <div class="breakdown-value">{{ reportData.atsScore.breakdown.structure }}/25</div>
+        </div>
+
+        <div class="breakdown-item">
+          <div class="breakdown-label">Keywords</div>
+          <div class="breakdown-bar">
+            <div class="breakdown-fill" 
+                 [style.width.%]="(reportData.atsScore.breakdown.keywords / 30) * 100"
+                 [ngClass]="getScoreClass((reportData.atsScore.breakdown.keywords / 30) * 100)">
+            </div>
+          </div>
+          <div class="breakdown-value">{{ reportData.atsScore.breakdown.keywords }}/30</div>
+        </div>
+
+        <div class="breakdown-item">
+          <div class="breakdown-label">Readability</div>
+          <div class="breakdown-bar">
+            <div class="breakdown-fill" 
+                 [style.width.%]="(reportData.atsScore.breakdown.readability / 25) * 100"
+                 [ngClass]="getScoreClass((reportData.atsScore.breakdown.readability / 25) * 100)">
+            </div>
+          </div>
+          <div class="breakdown-value">{{ reportData.atsScore.breakdown.readability }}/25</div>
+        </div>
+
+        <div class="breakdown-item">
+          <div class="breakdown-label">Formatting</div>
+          <div class="breakdown-bar">
+            <div class="breakdown-fill" 
+                 [style.width.%]="(reportData.atsScore.breakdown.formatting / 20) * 100"
+                 [ngClass]="getScoreClass((reportData.atsScore.breakdown.formatting / 20) * 100)">
+            </div>
+          </div>
+          <div class="breakdown-value">{{ reportData.atsScore.breakdown.formatting }}/20</div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Recommendations -->
+    <mat-card class="recommendations-card" *ngIf="reportData.recommendations.length > 0">
+      <mat-card-header>
+        <mat-card-title>Recommendations</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="recommendation-item" *ngFor="let rec of reportData.recommendations; let i = index">
+          <div class="recommendation-header">
+            <mat-chip [color]="getPriorityColor(rec.priority)" selected>
+              {{ rec.priority }}
+            </mat-chip>
+            <span class="recommendation-category">{{ rec.category }}</span>
+          </div>
+          <p class="recommendation-message">{{ rec.message }}</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- JD Match Results -->
+    <mat-card class="jd-match-card" *ngIf="reportData.jdMatch">
+      <mat-card-header>
+        <mat-card-title>Job Description Match</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="match-percentage">
+          <span class="match-label">Match Percentage:</span>
+          <span class="match-value" [ngClass]="getScoreClass(reportData.jdMatch.matchPercentage)">
+            {{ reportData.jdMatch.matchPercentage }}%
+          </span>
+        </div>
+
+        <div class="keywords-section" *ngIf="reportData.jdMatch.matchedKeywords?.length > 0">
+          <h4>Matched Keywords</h4>
+          <div class="keywords-list">
+            <mat-chip *ngFor="let keyword of reportData.jdMatch.matchedKeywords.slice(0, 10)">
+              {{ keyword.keyword || keyword }}
+            </mat-chip>
+          </div>
+        </div>
+
+        <div class="keywords-section" *ngIf="reportData.jdMatch.missingKeywords?.length > 0">
+          <h4>Missing Keywords</h4>
+          <div class="keywords-list">
+            <mat-chip color="warn" *ngFor="let keyword of reportData.jdMatch.missingKeywords.slice(0, 10)">
+              {{ keyword.keyword || keyword }}
+            </mat-chip>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- AI Suggestions -->
+    <mat-card class="ai-suggestions-card" *ngIf="reportData.aiSuggestions?.length > 0">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>auto_awesome</mat-icon>
+          AI-Powered Suggestions
+        </mat-card-title>
+        <mat-card-subtitle>Premium Feature</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="ai-suggestion-item" *ngFor="let suggestion of reportData.aiSuggestions.slice(0, 3)">
+          <div class="suggestion-original" *ngIf="suggestion.original">
+            <strong>Original:</strong> {{ suggestion.original }}
+          </div>
+          <div class="suggestion-improved">
+            <strong>Improved:</strong> {{ suggestion.improved || suggestion.suggestion }}
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

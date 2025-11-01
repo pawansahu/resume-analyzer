@@ -1,0 +1,50 @@
+<mat-card class="breakdown-card">
+  <mat-card-header>
+    <mat-card-title>Score Breakdown</mat-card-title>
+    <mat-card-subtitle>Detailed analysis by category</mat-card-subtitle>
+  </mat-card-header>
+  
+  <mat-card-content>
+    <div class="category-list">
+      <div class="category-item" *ngFor="let category of categories">
+        <div class="category-header">
+          <div class="category-info">
+            <mat-icon class="category-icon">{{ category.icon }}</mat-icon>
+            <span class="category-name">{{ category.name }}</span>
+          </div>
+          <div class="category-score">
+            <span class="score-value">{{ category.score }}</span>
+            <span class="score-max">/{{ category.maxScore }}</span>
+          </div>
+        </div>
+        
+        <div class="progress-container" [matTooltip]="getTooltip(category)">
+          <mat-progress-bar
+            mode="determinate"
+            [value]="category.percentage"
+            [color]="category.color"
+          ></mat-progress-bar>
+        </div>
+        
+        <div class="category-percentage">
+          {{ category.percentage | number:'1.0-0' }}%
+        </div>
+      </div>
+    </div>
+    
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-color excellent"></div>
+        <span>Excellent (80%+)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color good"></div>
+        <span>Good (60-79%)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color needs-improvement"></div>
+        <span>Needs Improvement (&lt;60%)</span>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

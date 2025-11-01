@@ -1,0 +1,106 @@
+<mat-card class="report-download-card">
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>description</mat-icon>
+      Download Report
+    </mat-card-title>
+    <mat-card-subtitle>
+      Get a comprehensive PDF report of your resume analysis
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <!-- No Report Generated Yet -->
+    <div *ngIf="!hasReport() && !isGenerating()" class="no-report-state">
+      <mat-icon class="large-icon">picture_as_pdf</mat-icon>
+      <p class="description">
+        Generate a professional PDF report with your ATS score, recommendations, 
+        and job description match analysis.
+      </p>
+      <button 
+        mat-raised-button 
+        color="primary" 
+        (click)="generateReport()"
+        [disabled]="!analysisId">
+        <mat-icon>download</mat-icon>
+        Generate Report
+      </button>
+    </div>
+
+    <!-- Generating State -->
+    <div *ngIf="isGenerating()" class="generating-state">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p class="status-message">{{ generationStatus.message }}</p>
+      <p class="status-hint">This may take a few seconds...</p>
+    </div>
+
+    <!-- Report Available -->
+    <div *ngIf="hasReport() && !isGenerating()" class="report-available-state">
+      <div class="report-info">
+        <mat-icon class="success-icon">check_circle</mat-icon>
+        <div class="report-details">
+          <h3>Report Ready</h3>
+          <p class="expiry-info" [class.expired]="isExpired()">
+            <mat-icon>{{ isExpired() ? 'error' : 'schedule' }}</mat-icon>
+            {{ getExpiryText() }}
+          </p>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button 
+          mat-raised-button 
+          color="primary" 
+          (click)="downloadReport()"
+          [disabled]="isGenerating()">
+          <mat-icon>download</mat-icon>
+          {{ isExpired() ? 'Regenerate & Download' : 'Download PDF' }}
+        </button>
+
+        <button 
+          mat-stroked-button 
+          color="accent" 
+          (click)="regenerateLink()"
+          [disabled]="isGenerating() || !isExpired()">
+          <mat-icon>refresh</mat-icon>
+          Regenerate Link
+        </button>
+      </div>
+
+      <div class="report-features">
+        <h4>Report Includes:</h4>
+        <ul>
+          <li>
+            <mat-icon>check</mat-icon>
+            Complete ATS compatibility score breakdown
+          </li>
+          <li>
+            <mat-icon>check</mat-icon>
+            Actionable recommendations for improvement
+          </li>
+          <li>
+            <mat-icon>check</mat-icon>
+            Job description match analysis (if available)
+          </li>
+          <li>
+            <mat-icon>check</mat-icon>
+            AI-powered suggestions (Premium feature)
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="generationStatus.status === 'error' && !isGenerating()" class="error-state">
+      <mat-icon color="warn">error</mat-icon>
+      <p class="error-message">{{ generationStatus.error }}</p>
+      <button 
+        mat-raised-button 
+        color="primary" 
+        (click)="generateReport()">
+        <mat-icon>refresh</mat-icon>
+        Try Again
+      </button>
+    </div>
+  </mat-card-content>
+</mat-card>

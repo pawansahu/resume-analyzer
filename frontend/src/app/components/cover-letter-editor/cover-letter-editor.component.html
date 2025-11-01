@@ -1,0 +1,138 @@
+<mat-card class="cover-letter-card">
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>description</mat-icon>
+      AI Cover Letter Generator
+    </mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <!-- Premium Feature Notice -->
+    <div *ngIf="!isPremium" class="premium-notice">
+      <mat-icon>lock</mat-icon>
+      <p>Cover letter generation is a premium feature. Upgrade to create tailored cover letters instantly.</p>
+      <button mat-raised-button color="primary" (click)="showUpgradePrompt()">
+        Upgrade Now
+      </button>
+    </div>
+
+    <!-- Job Description Input -->
+    <div class="input-section" *ngIf="isPremium && !coverLetter">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Job Description</mat-label>
+        <textarea 
+          matInput 
+          [(ngModel)]="jobDescription"
+          placeholder="Paste the job description here..."
+          rows="8"
+          maxlength="10000"
+        ></textarea>
+        <mat-hint align="end">{{ jobDescription.length }} / 10000</mat-hint>
+      </mat-form-field>
+
+      <button 
+        mat-raised-button 
+        color="primary" 
+        (click)="generateCoverLetter()"
+        [disabled]="loading || !jobDescription || !resume"
+        class="generate-btn"
+      >
+        <mat-icon>auto_awesome</mat-icon>
+        Generate Cover Letter
+      </button>
+      <p class="hint">This may take up to 30 seconds</p>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div *ngIf="loading" class="loading-section">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Generating your personalized cover letter... This may take up to 30 seconds.</p>
+    </div>
+
+    <!-- Cover Letter Display/Editor -->
+    <div *ngIf="!loading && coverLetter" class="cover-letter-section">
+      <div class="toolbar">
+        <div class="stats">
+          <span class="stat-item">
+            <mat-icon>text_fields</mat-icon>
+            {{ getWordCount() }} words
+          </span>
+          <span class="stat-item">
+            <mat-icon>format_size</mat-icon>
+            {{ getCharacterCount() }} characters
+          </span>
+        </div>
+        <div class="actions">
+          <button 
+            mat-icon-button 
+            (click)="toggleEdit()"
+            [color]="isEditing ? 'primary' : ''"
+            matTooltip="Edit cover letter"
+          >
+            <mat-icon>{{ isEditing ? 'visibility' : 'edit' }}</mat-icon>
+          </button>
+          <button 
+            mat-icon-button 
+            (click)="copyToClipboard()"
+            matTooltip="Copy to clipboard"
+          >
+            <mat-icon>content_copy</mat-icon>
+          </button>
+          <button 
+            mat-icon-button 
+            (click)="downloadAsText()"
+            matTooltip="Download as text file"
+          >
+            <mat-icon>download</mat-icon>
+          </button>
+          <button 
+            mat-icon-button 
+            (click)="clearCoverLetter()"
+            matTooltip="Clear and start over"
+            color="warn"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- View Mode -->
+      <div *ngIf="!isEditing" class="cover-letter-display">
+        <div class="letter-content">
+          {{ coverLetter }}
+        </div>
+      </div>
+
+      <!-- Edit Mode -->
+      <div *ngIf="isEditing" class="cover-letter-editor">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Edit Cover Letter</mat-label>
+          <textarea 
+            matInput 
+            [(ngModel)]="coverLetter"
+            rows="20"
+            class="editor-textarea"
+          ></textarea>
+        </mat-form-field>
+      </div>
+
+      <div class="action-buttons">
+        <button 
+          mat-raised-button 
+          color="primary"
+          (click)="generateCoverLetter()"
+          [disabled]="loading"
+        >
+          <mat-icon>refresh</mat-icon>
+          Regenerate
+        </button>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && !coverLetter && isPremium" class="empty-state">
+      <mat-icon>description</mat-icon>
+      <p>Enter a job description and click "Generate Cover Letter" to create a tailored cover letter based on your resume.</p>
+    </div>
+  </mat-card-content>
+</mat-card>

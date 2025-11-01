@@ -1,0 +1,102 @@
+<div class="subscription-container">
+  <mat-card class="subscription-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>account_circle</mat-icon>
+        Subscription & Billing
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Current Subscription Status -->
+      <div class="current-subscription">
+        <h3>Current Plan</h3>
+        <div class="subscription-info">
+          <mat-chip [color]="getTierBadgeColor()" selected>
+            {{ currentUser?.userTier || 'Free' | uppercase }}
+          </mat-chip>
+          <p class="subscription-status">{{ getSubscriptionStatus() }}</p>
+        </div>
+      </div>
+
+      <!-- Payment History -->
+      <div class="payment-history">
+        <h3>Payment History</h3>
+        
+        <div *ngIf="loading" class="loading-container">
+          <mat-spinner diameter="40"></mat-spinner>
+        </div>
+
+        <div *ngIf="!loading && payments.length === 0" class="no-payments">
+          <mat-icon>receipt_long</mat-icon>
+          <p>No payment history found</p>
+        </div>
+
+        <table mat-table [dataSource]="payments" *ngIf="!loading && payments.length > 0" class="payment-table">
+          <!-- Date Column -->
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef>Date</th>
+            <td mat-cell *matCellDef="let payment">{{ formatDate(payment.createdAt) }}</td>
+          </ng-container>
+
+          <!-- Plan Column -->
+          <ng-container matColumnDef="plan">
+            <th mat-header-cell *matHeaderCellDef>Plan</th>
+            <td mat-cell *matCellDef="let payment">
+              {{ payment.planId === 'one-time' ? 'One-Time Premium' : 'Monthly Subscription' }}
+            </td>
+          </ng-container>
+
+          <!-- Amount Column -->
+          <ng-container matColumnDef="amount">
+            <th mat-header-cell *matHeaderCellDef>Amount</th>
+            <td mat-cell *matCellDef="let payment">
+              {{ formatAmount(payment.amount, payment.currency) }}
+            </td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let payment">
+              <mat-chip [color]="getStatusColor(payment.status)" selected>
+                {{ payment.status | uppercase }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let payment">
+              <button 
+                mat-button 
+                color="warn"
+                *ngIf="canRequestRefund(payment)"
+                (click)="requestRefund(payment)"
+                [disabled]="loading">
+                Request Refund
+              </button>
+              <span *ngIf="payment.status === 'refunded'" class="refunded-text">
+                Refunded on {{ formatDate(payment.refundedAt!) }}
+              </span>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
+
+      <!-- Upgrade Prompt -->
+      <div class="upgrade-section" *ngIf="currentUser?.userTier !== 'premium'">
+        <mat-icon>upgrade</mat-icon>
+        <h3>Upgrade to Premium</h3>
+        <p>Get unlimited access to all features including AI-powered rewrite and cover letter generation</p>
+        <button mat-raised-button color="primary" routerLink="/pricing">
+          View Plans
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

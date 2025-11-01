@@ -1,0 +1,181 @@
+<mat-card class="jd-comparison-card">
+  <mat-card-header>
+    <mat-card-title>Job Description Matching</mat-card-title>
+    <mat-card-subtitle>Compare your resume with a specific job posting</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <!-- Job Description Input -->
+    <div class="jd-input-section">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Paste Job Description</mat-label>
+        <textarea
+          matInput
+          [(ngModel)]="jobDescription"
+          placeholder="Paste the job description here..."
+          rows="10"
+          [maxlength]="maxLength"
+          [disabled]="isAnalyzing"
+        ></textarea>
+        <mat-hint align="end" [class.over-limit]="isOverLimit">
+          {{ characterCount }} / {{ maxLength }}
+        </mat-hint>
+      </mat-form-field>
+
+      <div class="action-buttons">
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="analyzeMatch()"
+          [disabled]="!jobDescription.trim() || isOverLimit || isAnalyzing"
+        >
+          <mat-icon *ngIf="!isAnalyzing">search</mat-icon>
+          <mat-spinner *ngIf="isAnalyzing" diameter="20"></mat-spinner>
+          {{ isAnalyzing ? 'Analyzing...' : 'Analyze Match' }}
+        </button>
+
+        <button
+          mat-button
+          (click)="clearAnalysis()"
+          [disabled]="isAnalyzing"
+        >
+          Clear
+        </button>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="error" class="error-message">
+        <mat-icon>error</mat-icon>
+        <span>{{ error }}</span>
+      </div>
+    </div>
+
+    <!-- Match Results -->
+    <div *ngIf="matchResult" class="match-results">
+      <!-- Match Percentage -->
+      <div class="match-percentage-section">
+        <h3>Match Score</h3>
+        <div class="percentage-display" [class]="matchColor">
+          <div class="percentage-value">{{ matchResult.matchPercentage }}%</div>
+          <div class="percentage-label">Resume-JD Match</div>
+        </div>
+        <mat-progress-bar
+          mode="determinate"
+          [value]="matchResult.matchPercentage"
+          [color]="matchColor === 'success' ? 'primary' : matchColor === 'warning' ? 'accent' : 'warn'"
+        ></mat-progress-bar>
+      </div>
+
+      <!-- Matched Keywords -->
+      <div class="keywords-section">
+        <h3>
+          <mat-icon class="section-icon success">check_circle</mat-icon>
+          Matched Keywords ({{ matchResult.matchedKeywords.length }})
+        </h3>
+        <p class="section-description">Keywords from the job description found in your resume</p>
+        
+        <div class="keywords-grid" *ngIf="matchResult.matchedKeywords.length > 0">
+          <mat-chip-set>
+            <mat-chip
+              *ngFor="let keyword of matchResult.matchedKeywords.slice(0, 20)"
+              class="keyword-chip matched"
+            >
+              <span class="keyword-text">{{ keyword.word }}</span>
+              <span class="keyword-frequency">×{{ keyword.resumeFrequency }}</span>
+            </mat-chip>
+          </mat-chip-set>
+        </div>
+        
+        <p *ngIf="matchResult.matchedKeywords.length === 0" class="no-data">
+          No matching keywords found
+        </p>
+      </div>
+
+      <!-- Missing Keywords -->
+      <div class="keywords-section">
+        <h3>
+          <mat-icon class="section-icon warning">warning</mat-icon>
+          Missing Keywords ({{ matchResult.missingKeywords.length }})
+        </h3>
+        <p class="section-description">Important keywords from the job description not found in your resume</p>
+        
+        <div class="keywords-grid" *ngIf="matchResult.missingKeywords.length > 0">
+          <mat-chip-set>
+            <mat-chip
+              *ngFor="let keyword of matchResult.missingKeywords.slice(0, 20)"
+              class="keyword-chip missing"
+            >
+              <span class="keyword-text">{{ keyword.word }}</span>
+              <span class="keyword-importance" *ngIf="keyword.importance > 5">
+                <mat-icon class="importance-icon">priority_high</mat-icon>
+              </span>
+            </mat-chip>
+          </mat-chip-set>
+        </div>
+        
+        <p *ngIf="matchResult.missingKeywords.length === 0" class="no-data success-message">
+          Great! Your resume includes all key terms from the job description.
+        </p>
+      </div>
+
+      <!-- Improvement Suggestions -->
+      <div class="suggestions-section" *ngIf="matchResult.suggestions.length > 0">
+        <h3>
+          <mat-icon class="section-icon">lightbulb</mat-icon>
+          Improvement Suggestions
+        </h3>
+        
+        <div class="suggestions-list">
+          <div
+            *ngFor="let suggestion of matchResult.suggestions"
+            class="suggestion-item"
+            [class]="getPriorityColor(suggestion.priority)"
+          >
+            <div class="suggestion-header">
+              <mat-icon [class]="getPriorityColor(suggestion.priority)">
+                {{ getPriorityIcon(suggestion.priority) }}
+              </mat-icon>
+              <span class="suggestion-priority">{{ suggestion.priority | uppercase }}</span>
+            </div>
+            <div class="suggestion-content">
+              <p class="suggestion-message">{{ suggestion.message }}</p>
+              <p class="suggestion-action">
+                <strong>Action:</strong> {{ suggestion.action }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- JD Requirements Summary -->
+      <div class="requirements-summary">
+        <h3>Job Requirements Summary</h3>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <mat-icon>article</mat-icon>
+            <div class="summary-content">
+              <div class="summary-label">Total Keywords</div>
+              <div class="summary-value">{{ matchResult.jdRequirements.totalKeywords }}</div>
+            </div>
+          </div>
+          
+          <div class="summary-item" *ngIf="matchResult.jdRequirements.skills.length > 0">
+            <mat-icon>code</mat-icon>
+            <div class="summary-content">
+              <div class="summary-label">Technical Skills</div>
+              <div class="summary-value">{{ matchResult.jdRequirements.skills.length }}</div>
+            </div>
+          </div>
+          
+          <div class="summary-item" *ngIf="matchResult.jdRequirements.experience?.found">
+            <mat-icon>work</mat-icon>
+            <div class="summary-content">
+              <div class="summary-label">Experience Required</div>
+              <div class="summary-value">{{ matchResult.jdRequirements.experience.minYears }}+ years</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

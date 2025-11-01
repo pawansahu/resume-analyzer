@@ -1,0 +1,132 @@
+.breakdown-card {
+  margin: 20px 0;
+}
+
+.category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.category-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.category-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.category-icon {
+  color: #666;
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.category-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+}
+
+.category-score {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.score-value {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+}
+
+.score-max {
+  font-size: 14px;
+  color: #666;
+}
+
+.progress-container {
+  width: 100%;
+  cursor: help;
+  
+  ::ng-deep .mat-mdc-progress-bar {
+    height: 12px;
+    border-radius: 6px;
+    
+    .mdc-linear-progress__bar-inner {
+      border-radius: 6px;
+    }
+  }
+}
+
+.category-percentage {
+  text-align: right;
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+}
+
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #666;
+}
+
+.legend-color {
+  width: 20px;
+  height: 12px;
+  border-radius: 6px;
+  
+  &.excellent {
+    background-color: #3f51b5; // Primary color
+  }
+  
+  &.good {
+    background-color: #ff4081; // Accent color
+  }
+  
+  &.needs-improvement {
+    background-color: #f44336; // Warn color
+  }
+}
+
+@media (max-width: 600px) {
+  .category-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .category-score {
+    align-self: flex-end;
+  }
+  
+  .legend {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}

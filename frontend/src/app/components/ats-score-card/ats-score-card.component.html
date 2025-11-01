@@ -1,0 +1,62 @@
+<mat-card class="score-card">
+  <mat-card-header>
+    <mat-card-title>ATS Compatibility Score</mat-card-title>
+  </mat-card-header>
+  
+  <mat-card-content>
+    <div class="score-container" *ngIf="!loading">
+      <div class="score-circle">
+        <svg viewBox="0 0 200 200" class="progress-ring">
+          <circle
+            class="progress-ring-bg"
+            cx="100"
+            cy="100"
+            r="85"
+            fill="none"
+            stroke="#e0e0e0"
+            stroke-width="15"
+          />
+          <circle
+            class="progress-ring-fill"
+            cx="100"
+            cy="100"
+            r="85"
+            fill="none"
+            [attr.stroke]="scoreColor"
+            stroke-width="15"
+            stroke-linecap="round"
+            [style.stroke-dasharray]="534"
+            [style.stroke-dashoffset]="534 - (534 * score / 100)"
+            transform="rotate(-90 100 100)"
+          />
+        </svg>
+        <div class="score-text">
+          <div class="score-number">{{ score }}</div>
+          <div class="score-max">/100</div>
+        </div>
+      </div>
+      
+      <div class="score-info">
+        <mat-icon [style.color]="scoreColor" class="score-icon">{{ scoreIcon }}</mat-icon>
+        <div class="score-label" [style.color]="scoreColor">{{ scoreLabel }}</div>
+      </div>
+      
+      <div class="score-description">
+        <p *ngIf="score >= 80">
+          Your resume is well-optimized for ATS systems. Keep up the great work!
+        </p>
+        <p *ngIf="score >= 60 && score < 80">
+          Your resume is good but has room for improvement. Check the recommendations below.
+        </p>
+        <p *ngIf="score < 60" class="critical-warning">
+          Your resume needs significant improvements to pass ATS screening. Focus on critical issues first.
+        </p>
+      </div>
+    </div>
+    
+    <div class="loading-container" *ngIf="loading">
+      <mat-spinner diameter="80"></mat-spinner>
+      <p>Calculating ATS score...</p>
+    </div>
+  </mat-card-content>
+</mat-card>

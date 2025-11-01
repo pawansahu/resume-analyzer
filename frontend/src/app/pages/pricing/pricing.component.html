@@ -1,0 +1,80 @@
+<div class="pricing-container">
+  <div class="container">
+    <div class="header">
+      <h1>Choose Your Plan</h1>
+      <p class="subtitle">Select the perfect plan for your resume optimization needs</p>
+    </div>
+
+    <div class="plans-grid">
+      <mat-card *ngFor="let plan of plans" class="plan-card" [class.popular]="plan.popular">
+        <div class="popular-badge" *ngIf="plan.popular">
+          <mat-icon>star</mat-icon>
+          Most Popular
+        </div>
+
+        <mat-card-header>
+          <mat-card-title>{{ plan.name }}</mat-card-title>
+          <mat-card-subtitle>{{ plan.description }}</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="price-section">
+            <span class="price">{{ plan.price }}</span>
+            <span class="period">{{ plan.period }}</span>
+          </div>
+
+          <mat-list class="features-list">
+            <mat-list-item *ngFor="let feature of plan.features">
+              <mat-icon matListItemIcon class="check-icon">check_circle</mat-icon>
+              <span matListItemTitle>{{ feature }}</span>
+            </mat-list-item>
+            <mat-list-item *ngFor="let limitation of plan.limitations" class="limitation">
+              <mat-icon matListItemIcon class="cross-icon">cancel</mat-icon>
+              <span matListItemTitle>{{ limitation }}</span>
+            </mat-list-item>
+          </mat-list>
+
+          <button 
+            mat-raised-button 
+            [color]="plan.buttonColor" 
+            class="full-width"
+            (click)="selectPlan(plan)"
+            [disabled]="loading">
+            <mat-spinner *ngIf="loading" diameter="20" class="button-spinner"></mat-spinner>
+            <span *ngIf="!loading">{{ plan.buttonText }}</span>
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="faq-section">
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-grid">
+        <div class="faq-item">
+          <h3>Can I cancel anytime?</h3>
+          <p>Yes, you can cancel your subscription at any time. No questions asked.</p>
+        </div>
+        <div class="faq-item">
+          <h3>What payment methods do you accept?</h3>
+          <p>We accept all major credit/debit cards, UPI, and net banking through Razorpay.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Is there a refund policy?</h3>
+          <p>Yes, we offer a 7-day money-back guarantee if you're not satisfied.</p>
+        </div>
+        <div class="faq-item">
+          <h3>How does the AI rewrite work?</h3>
+          <p>Our AI analyzes your resume and provides improved versions of your content while maintaining accuracy.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta-section">
+      <h2>Still have questions?</h2>
+      <p>Contact our support team for personalized assistance</p>
+      <button mat-stroked-button routerLink="/">
+        Contact Support
+      </button>
+    </div>
+  </div>
+</div>

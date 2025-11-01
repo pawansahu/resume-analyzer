@@ -1,0 +1,122 @@
+<div class="dashboard-container">
+  <mat-toolbar color="primary" class="toolbar">
+    <span>Resume Analyzer</span>
+    <span class="spacer"></span>
+    <button mat-button routerLink="/">Home</button>
+    <button mat-button routerLink="/pricing">Pricing</button>
+    <button mat-button routerLink="/upload">Upload</button>
+    <button mat-icon-button [matMenuTriggerFor]="userMenu">
+      <mat-icon>account_circle</mat-icon>
+    </button>
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item disabled>
+        <mat-icon>email</mat-icon>
+        <span>{{ user.email }}</span>
+      </button>
+      <button mat-menu-item disabled>
+        <mat-icon>workspace_premium</mat-icon>
+        <span>{{ user.tier | uppercase }}</span>
+      </button>
+      <mat-divider></mat-divider>
+      <button mat-menu-item routerLink="/pricing">
+        <mat-icon>upgrade</mat-icon>
+        <span>Upgrade Plan</span>
+      </button>
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Logout</span>
+      </button>
+    </mat-menu>
+  </mat-toolbar>
+
+  <div class="container">
+    <div class="welcome-section">
+      <h1>Welcome back, {{ user.name }}!</h1>
+      <p class="subtitle">Tier: <strong>{{ user.tier | uppercase }}</strong> | Usage: {{ user.usageCount }}/{{ user.usageLimit }} analyses today</p>
+    </div>
+
+    <div class="actions-section">
+      <mat-card class="action-card">
+        <mat-card-content>
+          <mat-icon class="large-icon">upload_file</mat-icon>
+          <h2>Upload New Resume</h2>
+          <p>Analyze your resume and get instant ATS score</p>
+          <button mat-raised-button color="primary" routerLink="/upload">
+            <mat-icon>upload</mat-icon>
+            Upload Resume
+          </button>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="action-card">
+        <mat-card-content>
+          <mat-icon class="large-icon">description</mat-icon>
+          <h2>Compare with Job Description</h2>
+          <p>Match your resume against a specific job posting</p>
+          <button mat-raised-button color="accent" routerLink="/upload">
+            <mat-icon>compare</mat-icon>
+            Compare Now
+          </button>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="action-card">
+        <mat-card-content>
+          <mat-icon class="large-icon">auto_fix_high</mat-icon>
+          <h2>AI Rewrite</h2>
+          <p>Get AI-powered suggestions to improve your resume</p>
+          <button mat-raised-button [disabled]="user.tier === 'free'" [routerLink]="user.tier === 'free' ? '/pricing' : '/upload'">
+            <mat-icon>stars</mat-icon>
+            {{ user.tier === 'free' ? 'Premium Only' : 'Start Rewrite' }}
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="recent-section">
+      <h2>Recent Analyses</h2>
+      <div class="analyses-list" *ngIf="recentAnalyses.length > 0; else noAnalyses">
+        <mat-card *ngFor="let analysis of recentAnalyses" class="analysis-card">
+          <mat-card-content>
+            <div class="analysis-header">
+              <div>
+                <h3>{{ analysis.fileName }}</h3>
+                <p class="date">{{ analysis.date | date:'medium' }}</p>
+              </div>
+              <div class="score" [class.good]="analysis.atsScore >= 70" [class.warning]="analysis.atsScore < 70">
+                <span class="score-value">{{ analysis.atsScore }}</span>
+                <span class="score-label">ATS Score</span>
+              </div>
+            </div>
+            <div class="analysis-actions">
+              <button mat-button color="primary" (click)="viewAnalysisDetails(analysis.id)">
+                <mat-icon>visibility</mat-icon>
+                View Details
+              </button>
+              <button mat-button (click)="downloadReport(analysis.id)">
+                <mat-icon>download</mat-icon>
+                Download Report
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+      <ng-template #noAnalyses>
+        <p class="no-data">No analyses yet. Upload your first resume to get started!</p>
+      </ng-template>
+    </div>
+
+    <div class="upgrade-section" *ngIf="user.tier === 'free'">
+      <mat-card class="upgrade-card">
+        <mat-card-content>
+          <mat-icon class="upgrade-icon">workspace_premium</mat-icon>
+          <h2>Upgrade to Premium</h2>
+          <p>Get unlimited analyses, AI rewrite, and cover letter generation</p>
+          <button mat-raised-button color="accent" routerLink="/pricing">
+            View Plans
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

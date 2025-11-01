@@ -1,0 +1,114 @@
+.score-card {
+  max-width: 500px;
+  margin: 20px auto;
+}
+
+.score-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.score-circle {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin-bottom: 20px;
+}
+
+.progress-ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(0deg);
+}
+
+.progress-ring-fill {
+  transition: stroke-dashoffset 1s ease-in-out, stroke 0.3s ease;
+}
+
+.score-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.score-number {
+  font-size: 48px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.score-max {
+  font-size: 20px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.score-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.score-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+}
+
+.score-label {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.score-description {
+  text-align: center;
+  max-width: 400px;
+  
+  p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #666;
+  }
+  
+  .critical-warning {
+    color: #f44336;
+    font-weight: 500;
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+  
+  p {
+    margin-top: 20px;
+    color: #666;
+  }
+}
+
+@media (max-width: 600px) {
+  .score-circle {
+    width: 160px;
+    height: 160px;
+  }
+  
+  .score-number {
+    font-size: 36px;
+  }
+  
+  .score-max {
+    font-size: 16px;
+  }
+  
+  .score-label {
+    font-size: 20px;
+  }
+}
