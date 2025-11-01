@@ -36,6 +36,9 @@ const userSchema = new mongoose.Schema({
   subscriptionExpiresAt: {
     type: Date
   },
+  lastLitePurchaseDate: {
+    type: Date
+  },
   usageCount: {
     type: Number,
     default: 0

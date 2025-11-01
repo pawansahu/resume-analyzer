@@ -1,57 +1,83 @@
 <div class="home-container">
   <!-- Hero Section -->
-  <section class="hero">
+  <section class="hero-section">
     <div class="container">
-      <h1>AI-Powered Resume Analyzer</h1>
-      <p class="subtitle">
-        Get instant ATS score, keyword matching, and AI-powered improvements for your resume
-      </p>
-      <div class="cta-buttons">
-        <button mat-raised-button color="primary" routerLink="/register">
-          Get Started Free
-        </button>
-        <button mat-stroked-button routerLink="/pricing">
-          View Pricing
-        </button>
+      <div class="hero-content">
+        <h1>
+          Land Your Dream Job with
+          <span class="highlight">AI-Powered</span>
+          Resume Optimization
+        </h1>
+        <p>
+          Beat the ATS, impress recruiters, and get more interviews. Our AI analyzes your resume in seconds and provides actionable insights to help you stand out.
+        </p>
+        <div class="cta-buttons">
+          <button mat-raised-button color="primary" routerLink="/register">
+            <mat-icon>rocket_launch</mat-icon>
+            Start Free Analysis
+          </button>
+          <button mat-raised-button color="accent" routerLink="/pricing">
+            <mat-icon>workspace_premium</mat-icon>
+            View Pricing
+          </button>
+        </div>
+        <div class="trust-badges">
+          <div class="badge">
+            <mat-icon>verified</mat-icon>
+            <span><span class="number">10,000+</span> Resumes Analyzed</span>
+          </div>
+          <div class="badge">
+            <mat-icon>star</mat-icon>
+            <span><span class="number">4.9/5</span> User Rating</span>
+          </div>
+          <div class="badge">
+            <mat-icon>speed</mat-icon>
+            <span><span class="number">30 sec</span> Analysis Time</span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- Features Section -->
-  <section class="features">
+  <section class="features-section">
     <div class="container">
-      <h2 class="text-center">Powerful Features</h2>
+      <div class="section-header">
+        <span class="section-badge">✨ Powerful Features</span>
+        <h2>Everything You Need to Succeed</h2>
+        <p>Comprehensive tools to optimize your resume and land your dream job faster</p>
+      </div>
       <div class="features-grid">
-        <mat-card *ngFor="let feature of features" class="feature-card">
-          <mat-card-content>
-            <mat-icon class="feature-icon">{{ feature.icon }}</mat-icon>
-            <h3>{{ feature.title }}</h3>
-            <p>{{ feature.description }}</p>
-          </mat-card-content>
-        </mat-card>
+        <div class="feature-card" *ngFor="let feature of features">
+          <div class="icon-wrapper">
+            <mat-icon>{{ feature.icon }}</mat-icon>
+          </div>
+          <h3>{{ feature.title }}</h3>
+          <p>{{ feature.description }}</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- How It Works Section -->
-  <section class="how-it-works">
+  <!-- Stats Section -->
+  <section class="stats-section">
     <div class="container">
-      <h2 class="text-center">How It Works</h2>
-      <div class="steps">
-        <div class="step">
-          <div class="step-number">1</div>
-          <h3>Upload Resume</h3>
-          <p>Upload your resume in PDF or DOCX format</p>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-number">10K+</span>
+          <span class="stat-label">Resumes Analyzed</span>
         </div>
-        <div class="step">
-          <div class="step-number">2</div>
-          <h3>Get Analysis</h3>
-          <p>Receive instant ATS score and detailed feedback</p>
+        <div class="stat-item">
+          <span class="stat-number">95%</span>
+          <span class="stat-label">Success Rate</span>
         </div>
-        <div class="step">
-          <div class="step-number">3</div>
-          <h3>Improve & Download</h3>
-          <p>Apply suggestions and download your improved resume</p>
+        <div class="stat-item">
+          <span class="stat-number">30s</span>
+          <span class="stat-label">Average Analysis Time</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">4.9★</span>
+          <span class="stat-label">User Rating</span>
         </div>
       </div>
     </div>
@@ -59,12 +85,15 @@
 
   <!-- CTA Section -->
   <section class="cta-section">
-    <div class="container text-center">
-      <h2>Ready to Optimize Your Resume?</h2>
-      <p>Join thousands of job seekers who improved their resumes</p>
-      <button mat-raised-button color="accent" routerLink="/register">
-        Start Free Analysis
-      </button>
+    <div class="container">
+      <div class="cta-content">
+        <h2>Ready to Optimize Your Resume?</h2>
+        <p>Join thousands of job seekers who improved their resumes and landed their dream jobs</p>
+        <button mat-raised-button color="accent" routerLink="/register">
+          <mat-icon>rocket_launch</mat-icon>
+          Start Free Analysis Now
+        </button>
+      </div>
     </div>
   </section>
 </div>

@@ -24,6 +24,8 @@ export const createPaymentIntent = async (req, res) => {
     const { planId, provider } = req.body;
     const userId = req.user.userId;
 
+    console.log('Creating payment intent:', { userId, planId, provider });
+
     if (!planId) {
       return res.status(400).json({ 
         success: false, 
@@ -31,18 +33,31 @@ export const createPaymentIntent = async (req, res) => {
       });
     }
 
+    // Validate purchase eligibility
+    const validation = await paymentService.validatePurchase(userId, planId);
+    if (!validation.allowed) {
+      return res.status(400).json({ 
+        success: false, 
+        error: validation.reason 
+      });
+    }
+
     let paymentIntent;
 
     if (provider === 'stripe') {
+      console.log('Using Stripe provider');
       paymentIntent = await paymentService.createStripeIntent(userId, planId);
     } else {
       // Default to Razorpay for Indian users
+      console.log('Using Razorpay provider');
       paymentIntent = await paymentService.createRazorpayIntent(userId, planId);
     }
 
+    console.log('Payment intent created successfully:', paymentIntent.orderId || paymentIntent.paymentIntentId);
     res.json({ success: true, paymentIntent });
   } catch (error) {
     console.error('Error creating payment intent:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({ 
       success: false, 
       error: error.message || 'Failed to create payment intent' 

@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { ResumeService, UploadProgress, ParsedResume } from '../../services/resume.service';
 import { AtsScoreCardComponent } from '../../components/ats-score-card/ats-score-card.component';
@@ -22,6 +23,7 @@ import { JdComparisonComponent } from '../../components/jd-comparison/jd-compari
     MatIconModule,
     MatProgressBarModule,
     MatSnackBarModule,
+    MatTooltipModule,
     AtsScoreCardComponent,
     ScoreBreakdownComponent,
     RecommendationsListComponent,
@@ -207,11 +209,46 @@ export class UploadComponent {
   }
 
   /**
+   * Get file type for display
+   */
+  getFileType(filename: string): string {
+    const extension = filename.split('.').pop()?.toLowerCase();
+    switch (extension) {
+      case 'pdf':
+        return 'PDF Document';
+      case 'docx':
+        return 'Word Document';
+      default:
+        return 'Document';
+    }
+  }
+
+  /**
+   * Get progress title based on status
+   */
+  getProgressTitle(): string {
+    if (!this.uploadProgress) return '';
+    
+    switch (this.uploadProgress.status) {
+      case 'uploading':
+        return 'Analyzing Resume...';
+      case 'complete':
+        return 'Analysis Complete!';
+      case 'error':
+        return 'Analysis Failed';
+      default:
+        return '';
+    }
+  }
+
+  /**
    * Navigate to analysis results
    */
   viewResults(): void {
     if (this.analysisId) {
-      this.router.navigate(['/analysis', this.analysisId]);
+      // For now, navigate to dashboard
+      // TODO: Create dedicated analysis results page
+      this.router.navigate(['/dashboard']);
     }
   }
 }

@@ -1,0 +1,297 @@
+<div class="profile-container">
+  <div class="container">
+    <!-- Header -->
+    <div class="profile-header">
+      <div class="header-content">
+        <div class="avatar-section">
+          <div class="avatar">
+            <mat-icon>account_circle</mat-icon>
+          </div>
+          <button mat-button class="change-avatar-btn">
+            <mat-icon>photo_camera</mat-icon>
+            Change Photo
+          </button>
+        </div>
+        <div class="user-info">
+          <h1>{{ user.firstName }} {{ user.lastName }}</h1>
+          <p class="email">{{ user.email }}</p>
+          <div class="tier-badge" [ngClass]="getTierBadgeClass()">
+            <mat-icon>{{ user.userTier === 'premium' ? 'workspace_premium' : 'person' }}</mat-icon>
+            <span>{{ user.userTier | uppercase }} PLAN</span>
+          </div>
+        </div>
+      </div>
+      <div class="stats-section">
+        <div class="stat-card">
+          <mat-icon>analytics</mat-icon>
+          <div>
+            <span class="stat-value">{{ user.usageCount }}</span>
+            <span class="stat-label">Analyses Today</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <mat-icon>calendar_today</mat-icon>
+          <div>
+            <span class="stat-value">{{ user.createdAt | date:'MMM yyyy' }}</span>
+            <span class="stat-label">Member Since</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <mat-tab-group class="profile-tabs" animationDuration="300ms">
+      <!-- Profile Information Tab -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>person</mat-icon>
+          <span>Profile Information</span>
+        </ng-template>
+        
+        <div class="tab-content">
+          <mat-card class="form-card">
+            <mat-card-content>
+              <h2>Personal Information</h2>
+              <p class="subtitle">Update your personal details and information</p>
+              
+              <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>First Name</mat-label>
+                    <input matInput formControlName="firstName" placeholder="Enter your first name">
+                    <mat-icon matPrefix>person</mat-icon>
+                    <mat-error *ngIf="profileForm.get('firstName')?.hasError('required')">
+                      First name is required
+                    </mat-error>
+                    <mat-error *ngIf="profileForm.get('firstName')?.hasError('minlength')">
+                      First name must be at least 2 characters
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Last Name</mat-label>
+                    <input matInput formControlName="lastName" placeholder="Enter your last name">
+                    <mat-icon matPrefix>person</mat-icon>
+                    <mat-error *ngIf="profileForm.get('lastName')?.hasError('required')">
+                      Last name is required
+                    </mat-error>
+                    <mat-error *ngIf="profileForm.get('lastName')?.hasError('minlength')">
+                      Last name must be at least 2 characters
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Email Address</mat-label>
+                  <input matInput formControlName="email" type="email" placeholder="Enter your email">
+                  <mat-icon matPrefix>email</mat-icon>
+                  <mat-error *ngIf="profileForm.get('email')?.hasError('required')">
+                    Email is required
+                  </mat-error>
+                  <mat-error *ngIf="profileForm.get('email')?.hasError('email')">
+                    Please enter a valid email
+                  </mat-error>
+                </mat-form-field>
+
+                <div class="form-actions">
+                  <button mat-raised-button color="primary" type="submit" [disabled]="!profileForm.valid || loading">
+                    <mat-icon>save</mat-icon>
+                    {{ loading ? 'Saving...' : 'Save Changes' }}
+                  </button>
+                  <button mat-button type="button" (click)="loadUserProfile()">
+                    <mat-icon>refresh</mat-icon>
+                    Reset
+                  </button>
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Security Tab -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>lock</mat-icon>
+          <span>Security</span>
+        </ng-template>
+        
+        <div class="tab-content">
+          <mat-card class="form-card">
+            <mat-card-content>
+              <h2>Change Password</h2>
+              <p class="subtitle">Ensure your account is using a strong password</p>
+              
+              <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Current Password</mat-label>
+                  <input matInput [type]="hideCurrentPassword ? 'password' : 'text'" 
+                         formControlName="currentPassword" placeholder="Enter current password">
+                  <mat-icon matPrefix>lock</mat-icon>
+                  <button mat-icon-button matSuffix type="button" 
+                          (click)="hideCurrentPassword = !hideCurrentPassword">
+                    <mat-icon>{{ hideCurrentPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                  </button>
+                  <mat-error *ngIf="passwordForm.get('currentPassword')?.hasError('required')">
+                    Current password is required
+                  </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>New Password</mat-label>
+                  <input matInput [type]="hideNewPassword ? 'password' : 'text'" 
+                         formControlName="newPassword" placeholder="Enter new password">
+                  <mat-icon matPrefix>lock_open</mat-icon>
+                  <button mat-icon-button matSuffix type="button" 
+                          (click)="hideNewPassword = !hideNewPassword">
+                    <mat-icon>{{ hideNewPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                  </button>
+                  <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('required')">
+                    New password is required
+                  </mat-error>
+                  <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('minlength')">
+                    Password must be at least 8 characters
+                  </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Confirm New Password</mat-label>
+                  <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" 
+                         formControlName="confirmPassword" placeholder="Confirm new password">
+                  <mat-icon matPrefix>lock_open</mat-icon>
+                  <button mat-icon-button matSuffix type="button" 
+                          (click)="hideConfirmPassword = !hideConfirmPassword">
+                    <mat-icon>{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                  </button>
+                  <mat-error *ngIf="passwordForm.get('confirmPassword')?.hasError('required')">
+                    Please confirm your password
+                  </mat-error>
+                  <mat-error *ngIf="passwordForm.hasError('passwordMismatch')">
+                    Passwords do not match
+                  </mat-error>
+                </mat-form-field>
+
+                <div class="form-actions">
+                  <button mat-raised-button color="primary" type="submit" 
+                          [disabled]="!passwordForm.valid || loading">
+                    <mat-icon>security</mat-icon>
+                    {{ loading ? 'Updating...' : 'Update Password' }}
+                  </button>
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Subscription Tab -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>workspace_premium</mat-icon>
+          <span>Subscription</span>
+        </ng-template>
+        
+        <div class="tab-content">
+          <mat-card class="subscription-card">
+            <mat-card-content>
+              <div class="subscription-header">
+                <div>
+                  <h2>Current Plan</h2>
+                  <p class="subtitle">Manage your subscription and billing</p>
+                </div>
+                <div class="plan-badge" [ngClass]="getTierBadgeClass()">
+                  {{ user.userTier | uppercase }}
+                </div>
+              </div>
+
+              <div class="plan-details">
+                <div class="detail-item">
+                  <mat-icon>check_circle</mat-icon>
+                  <div>
+                    <strong>Daily Analyses</strong>
+                    <p>{{ user.userTier === 'premium' ? 'Unlimited' : '3 per day' }}</p>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <mat-icon>check_circle</mat-icon>
+                  <div>
+                    <strong>AI Rewrite</strong>
+                    <p>{{ user.userTier === 'premium' ? 'Included' : 'Not available' }}</p>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <mat-icon>check_circle</mat-icon>
+                  <div>
+                    <strong>Cover Letter Generation</strong>
+                    <p>{{ user.userTier === 'premium' ? 'Included' : 'Not available' }}</p>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <mat-icon>check_circle</mat-icon>
+                  <div>
+                    <strong>Priority Support</strong>
+                    <p>{{ user.userTier === 'premium' ? 'Included' : 'Not available' }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <mat-divider></mat-divider>
+
+              <div class="subscription-actions">
+                <button mat-raised-button color="accent" routerLink="/pricing" 
+                        *ngIf="user.userTier === 'free'">
+                  <mat-icon>upgrade</mat-icon>
+                  Upgrade to Premium
+                </button>
+                <button mat-button *ngIf="user.userTier === 'premium'">
+                  <mat-icon>credit_card</mat-icon>
+                  Manage Billing
+                </button>
+                <button mat-button *ngIf="user.userTier === 'premium'">
+                  <mat-icon>cancel</mat-icon>
+                  Cancel Subscription
+                </button>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Danger Zone Tab -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>warning</mat-icon>
+          <span>Danger Zone</span>
+        </ng-template>
+        
+        <div class="tab-content">
+          <mat-card class="danger-card">
+            <mat-card-content>
+              <h2>Delete Account</h2>
+              <p class="subtitle">Permanently delete your account and all associated data</p>
+              
+              <div class="danger-warning">
+                <mat-icon>error</mat-icon>
+                <div>
+                  <strong>Warning: This action cannot be undone</strong>
+                  <p>Deleting your account will permanently remove all your data, including:</p>
+                  <ul>
+                    <li>All resume analyses and reports</li>
+                    <li>Your profile information</li>
+                    <li>Subscription and billing history</li>
+                    <li>All saved preferences</li>
+                  </ul>
+                </div>
+              </div>
+
+              <button mat-raised-button color="warn" (click)="deleteAccount()">
+                <mat-icon>delete_forever</mat-icon>
+                Delete My Account
+              </button>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

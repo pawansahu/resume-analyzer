@@ -31,6 +31,8 @@ declare var Razorpay: any;
 export class PricingComponent implements OnInit {
   loading = false;
   isAuthenticated = false;
+  loadingPlanId: string | null = null; // Track which plan is loading
+  currentUser: any = null;
 
   plans = [
     {
@@ -107,12 +109,25 @@ export class PricingComponent implements OnInit {
 
   ngOnInit(): void {
     this.isAuthenticated = this.authService.isAuthenticated();
+    
+    // Subscribe to current user to check eligibility
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+    });
   }
 
   async selectPlan(plan: any): Promise<void> {
     if (plan.id === 'free') {
+      // Check if user has purchased any paid plan
+      if (this.isAuthenticated && this.currentUser && this.hasPurchasedPaidPlan()) {
+        this.snackBar.open('You already have a paid plan. Free plan is not available.', 'Close', {
+          duration: 3000
+        });
+        return;
+      }
+
       if (!this.isAuthenticated) {
-        this.router.navigate(['/auth/register']);
+        this.router.navigate(['/register']);
       } else {
         this.router.navigate(['/upload']);
       }
@@ -123,38 +138,55 @@ export class PricingComponent implements OnInit {
       this.snackBar.open('Please login to purchase a plan', 'Close', {
         duration: 3000
       });
-      this.router.navigate(['/auth/login']);
+      this.router.navigate(['/login']);
       return;
     }
 
+    this.loadingPlanId = plan.id; // Set which plan is loading
     await this.initiatePayment(plan.planId);
   }
 
   async initiatePayment(planId: string): Promise<void> {
     try {
-      this.loading = true;
+      console.log('Initiating payment for plan:', planId);
 
       // Load Razorpay script
+      console.log('Loading Razorpay script...');
       const scriptLoaded = await this.paymentService.loadRazorpayScript();
       if (!scriptLoaded) {
-        throw new Error('Failed to load payment gateway');
+        throw new Error('Failed to load payment gateway. Please check your internet connection.');
       }
+      console.log('Razorpay script loaded successfully');
 
       // Create payment intent
+      console.log('Creating payment intent...');
       this.paymentService.createPaymentIntent(planId, 'razorpay').subscribe({
         next: (response) => {
+          console.log('Payment intent response:', response);
           if (response.success) {
             this.openRazorpayCheckout(response.paymentIntent);
+          } else {
+            throw new Error('Invalid payment intent response');
           }
         },
         error: (error) => {
           console.error('Payment intent error:', error);
-          this.snackBar.open(
-            error.error?.error || 'Failed to initiate payment',
-            'Close',
-            { duration: 5000 }
-          );
-          this.loading = false;
+          let errorMessage = 'Failed to initiate payment';
+          
+          if (error.status === 401) {
+            errorMessage = 'Please login to continue';
+          } else if (error.status === 400) {
+            errorMessage = error.error?.error || 'Invalid payment request';
+          } else if (error.status === 500) {
+            errorMessage = 'Server error. Please try again later.';
+          } else if (error.error?.error) {
+            errorMessage = error.error.error;
+          } else if (error.message) {
+            errorMessage = error.message;
+          }
+          
+          this.snackBar.open(errorMessage, 'Close', { duration: 5000 });
+          this.loadingPlanId = null;
         }
       });
     } catch (error: any) {
@@ -162,7 +194,7 @@ export class PricingComponent implements OnInit {
       this.snackBar.open(error.message || 'Payment failed', 'Close', {
         duration: 5000
       });
-      this.loading = false;
+      this.loadingPlanId = null;
     }
   }
 
@@ -183,12 +215,12 @@ export class PricingComponent implements OnInit {
       },
       modal: {
         ondismiss: () => {
-          this.loading = false;
+          this.loadingPlanId = null;
           this.snackBar.open('Payment cancelled', 'Close', { duration: 3000 });
         }
       },
       theme: {
-        color: '#3f51b5'
+        color: '#667eea'
       }
     };
 
@@ -197,27 +229,51 @@ export class PricingComponent implements OnInit {
   }
 
   verifyPayment(orderId: string, paymentId: string, signature: string): void {
+    console.log('Verifying payment...', { orderId, paymentId });
+    
     this.paymentService
       .verifyRazorpayPayment(orderId, paymentId, signature)
       .subscribe({
         next: (response) => {
-          this.loading = false;
+          console.log('Payment verification response:', response);
+          this.loadingPlanId = null;
+          
           if (response.success) {
+            // Show success message
             this.snackBar.open(
-              'Payment successful! Your account has been upgraded.',
+              'Payment successful! Redirecting to dashboard...',
+              'Close',
+              { duration: 3000 }
+            );
+            
+            console.log('Payment successful, refreshing user data...');
+            
+            // Refresh user data
+            this.authService.refreshUserData();
+            
+            // Navigate to dashboard immediately
+            console.log('Redirecting to dashboard...');
+            setTimeout(() => {
+              this.router.navigate(['/dashboard']).then(
+                (success) => {
+                  console.log('Navigation to dashboard successful:', success);
+                  // Reload the page to ensure all data is fresh
+                  window.location.reload();
+                },
+                (error) => console.error('Navigation error:', error)
+              );
+            }, 1500);
+          } else {
+            console.error('Payment verification failed:', response);
+            this.snackBar.open(
+              'Payment verification failed. Please contact support.',
               'Close',
               { duration: 5000 }
             );
-            // Refresh user data
-            this.authService.refreshUserData();
-            // Navigate to dashboard
-            setTimeout(() => {
-              this.router.navigate(['/dashboard']);
-            }, 2000);
           }
         },
         error: (error) => {
-          this.loading = false;
+          this.loadingPlanId = null;
           console.error('Payment verification error:', error);
           this.snackBar.open(
             'Payment verification failed. Please contact support.',
@@ -226,5 +282,147 @@ export class PricingComponent implements OnInit {
           );
         }
       });
+  }
+
+  // Helper method to check if a specific plan is loading
+  isPlanLoading(planId: string): boolean {
+    return this.loadingPlanId === planId;
+  }
+
+  // Check if user has purchased any paid plan
+  hasPurchasedPaidPlan(): boolean {
+    if (!this.currentUser) {
+      return false;
+    }
+
+    const now = new Date();
+
+    // Check if user has Lite purchase (today or any day)
+    if (this.currentUser.lastLitePurchaseDate) {
+      return true;
+    }
+
+    // Check if user has active or expired Pro subscription
+    if (this.currentUser.userTier === 'premium') {
+      return true;
+    }
+
+    return false;
+  }
+
+  // Check if user can access a plan
+  canAccessPlan(planId: string | null): boolean {
+    // For free plan
+    if (!planId) {
+      // Free plan not available if user has purchased any paid plan
+      if (this.isAuthenticated && this.currentUser && this.hasPurchasedPaidPlan()) {
+        return false;
+      }
+      return true;
+    }
+
+    // For paid plans, check purchase eligibility
+    return this.canPurchasePlan(planId);
+  }
+
+  // Check if user can purchase a plan
+  canPurchasePlan(planId: string | null): boolean {
+    if (!planId || !this.isAuthenticated || !this.currentUser) {
+      return true; // Show as available for non-authenticated users
+    }
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    // Check for Lite plan
+    if (planId === 'one-time') {
+      // Cannot buy Lite if user has active Pro subscription
+      if (this.currentUser.userTier === 'premium' && 
+          this.currentUser.subscriptionStatus === 'active' && 
+          this.currentUser.subscriptionExpiresAt && 
+          new Date(this.currentUser.subscriptionExpiresAt) > now) {
+        return false;
+      }
+
+      // Check if already purchased Lite today
+      if (this.currentUser.lastLitePurchaseDate) {
+        const lastPurchaseDate = new Date(this.currentUser.lastLitePurchaseDate);
+        const purchaseDay = new Date(
+          lastPurchaseDate.getFullYear(), 
+          lastPurchaseDate.getMonth(), 
+          lastPurchaseDate.getDate()
+        );
+        
+        if (purchaseDay.getTime() === today.getTime()) {
+          return false;
+        }
+      }
+    }
+
+    // Check for Pro plan
+    if (planId === 'monthly') {
+      // Cannot buy Pro if user already has active Pro subscription
+      if (this.currentUser.userTier === 'premium' && 
+          this.currentUser.subscriptionStatus === 'active' && 
+          this.currentUser.subscriptionExpiresAt && 
+          new Date(this.currentUser.subscriptionExpiresAt) > now) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  // Get disabled message for a plan
+  getDisabledMessage(planId: string | null): string {
+    if (!this.isAuthenticated || !this.currentUser) {
+      return '';
+    }
+
+    // For free plan
+    if (!planId) {
+      if (this.hasPurchasedPaidPlan()) {
+        return 'Not available with paid plan';
+      }
+      return '';
+    }
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    if (planId === 'one-time') {
+      // Check Pro subscription
+      if (this.currentUser.userTier === 'premium' && 
+          this.currentUser.subscriptionStatus === 'active' && 
+          this.currentUser.subscriptionExpiresAt && 
+          new Date(this.currentUser.subscriptionExpiresAt) > now) {
+        return 'You have an active Pro subscription';
+      }
+
+      // Check today's Lite purchase
+      if (this.currentUser.lastLitePurchaseDate) {
+        const lastPurchaseDate = new Date(this.currentUser.lastLitePurchaseDate);
+        const purchaseDay = new Date(
+          lastPurchaseDate.getFullYear(), 
+          lastPurchaseDate.getMonth(), 
+          lastPurchaseDate.getDate()
+        );
+        
+        if (purchaseDay.getTime() === today.getTime()) {
+          return 'Already purchased today';
+        }
+      }
+    }
+
+    if (planId === 'monthly') {
+      if (this.currentUser.userTier === 'premium' && 
+          this.currentUser.subscriptionStatus === 'active' && 
+          this.currentUser.subscriptionExpiresAt && 
+          new Date(this.currentUser.subscriptionExpiresAt) > now) {
+        return 'Already subscribed';
+      }
+    }
+
+    return '';
   }
 }

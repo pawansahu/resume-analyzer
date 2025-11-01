@@ -1,0 +1,115 @@
+<nav class="navbar">
+  <div class="navbar-container">
+    <!-- Logo -->
+    <div class="navbar-brand" routerLink="/">
+      <div class="logo-icon">
+        <mat-icon>description</mat-icon>
+      </div>
+      <span class="logo-text">Resume<span class="highlight">Analyzer</span></span>
+    </div>
+
+    <!-- Desktop Navigation -->
+    <div class="navbar-menu desktop-menu">
+      <a 
+        *ngFor="let link of navLinks"
+        [routerLink]="link.path"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{exact: link.path === '/'}"
+        class="nav-link">
+        <mat-icon>{{ link.icon }}</mat-icon>
+        <span>{{ link.label }}</span>
+      </a>
+    </div>
+
+    <!-- Auth Buttons -->
+    <div class="navbar-actions desktop-actions">
+      <ng-container *ngIf="!isLoggedIn">
+        <button mat-button routerLink="/login" class="login-btn">
+          <mat-icon>login</mat-icon>
+          Login
+        </button>
+        <button mat-raised-button routerLink="/register" class="signup-btn">
+          <mat-icon>person_add</mat-icon>
+          Sign Up
+        </button>
+      </ng-container>
+      
+      <ng-container *ngIf="isLoggedIn">
+        <span class="user-welcome">Welcome!</span>
+        <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-menu-btn">
+          <mat-icon>account_circle</mat-icon>
+        </button>
+        <mat-menu #userMenu="matMenu" class="user-menu">
+          <button mat-menu-item routerLink="/dashboard">
+            <mat-icon>dashboard</mat-icon>
+            <span>Dashboard</span>
+          </button>
+          <button mat-menu-item routerLink="/upload">
+            <mat-icon>cloud_upload</mat-icon>
+            <span>Upload Resume</span>
+          </button>
+          <button mat-menu-item routerLink="/profile">
+            <mat-icon>person</mat-icon>
+            <span>Profile</span>
+          </button>
+          <button mat-menu-item (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            <span>Logout</span>
+          </button>
+        </mat-menu>
+      </ng-container>
+    </div>
+
+    <!-- Mobile Menu Toggle -->
+    <button 
+      mat-icon-button 
+      class="mobile-menu-toggle"
+      (click)="toggleMenu()">
+      <mat-icon>{{ isMenuOpen ? 'close' : 'menu' }}</mat-icon>
+    </button>
+  </div>
+
+  <!-- Mobile Navigation -->
+  <div class="mobile-menu" [class.open]="isMenuOpen">
+    <div class="mobile-menu-content">
+      <a 
+        *ngFor="let link of navLinks"
+        [routerLink]="link.path"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{exact: link.path === '/'}"
+        class="mobile-nav-link"
+        (click)="closeMenu()">
+        <mat-icon>{{ link.icon }}</mat-icon>
+        <span>{{ link.label }}</span>
+      </a>
+
+      <div class="mobile-divider"></div>
+
+      <ng-container *ngIf="!isLoggedIn">
+        <a routerLink="/login" class="mobile-nav-link" (click)="closeMenu()">
+          <mat-icon>login</mat-icon>
+          <span>Login</span>
+        </a>
+        <a routerLink="/register" class="mobile-nav-link highlight" (click)="closeMenu()">
+          <mat-icon>person_add</mat-icon>
+          <span>Sign Up</span>
+        </a>
+      </ng-container>
+
+      <ng-container *ngIf="isLoggedIn">
+        <div class="mobile-user-info">
+          <mat-icon>account_circle</mat-icon>
+          <span>My Account</span>
+        </div>
+        <a routerLink="/profile" class="mobile-nav-link" (click)="closeMenu()">
+          <mat-icon>person</mat-icon>
+          <span>Profile</span>
+        </a>
+        <a (click)="logout()" class="mobile-nav-link">
+          <mat-icon>logout</mat-icon>
+          <span>Logout</span>
+        </a>
+      </ng-container>
+    </div>
+  </div>
+</nav>

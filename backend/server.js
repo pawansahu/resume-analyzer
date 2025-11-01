@@ -46,12 +46,16 @@ import resumeRoutes from './routes/resume.routes.js';
 import aiRoutes from './routes/ai.routes.js';
 import reportRoutes from './routes/report.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
+import contactRoutes from './routes/contact.routes.js';
+import profileRoutes from './routes/profile.routes.js';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/resume', resumeRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/contact', contactRoutes);
+app.use('/api/profile', profileRoutes);
 // app.use('/api/analysis', analysisRoutes);
 // app.use('/api/admin', adminRoutes);
 

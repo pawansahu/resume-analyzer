@@ -1,33 +1,25 @@
 <div class="dashboard-container">
-  <mat-toolbar color="primary" class="toolbar">
-    <span>Resume Analyzer</span>
-    <span class="spacer"></span>
-    <button mat-button routerLink="/">Home</button>
-    <button mat-button routerLink="/pricing">Pricing</button>
-    <button mat-button routerLink="/upload">Upload</button>
-    <button mat-icon-button [matMenuTriggerFor]="userMenu">
-      <mat-icon>account_circle</mat-icon>
-    </button>
-    <mat-menu #userMenu="matMenu">
-      <button mat-menu-item disabled>
-        <mat-icon>email</mat-icon>
-        <span>{{ user.email }}</span>
-      </button>
-      <button mat-menu-item disabled>
-        <mat-icon>workspace_premium</mat-icon>
-        <span>{{ user.tier | uppercase }}</span>
-      </button>
-      <mat-divider></mat-divider>
-      <button mat-menu-item routerLink="/pricing">
-        <mat-icon>upgrade</mat-icon>
-        <span>Upgrade Plan</span>
-      </button>
-      <button mat-menu-item (click)="logout()">
-        <mat-icon>logout</mat-icon>
-        <span>Logout</span>
-      </button>
-    </mat-menu>
-  </mat-toolbar>
+  <!-- SVG Gradients for Score Rings -->
+  <svg width="0" height="0" style="position: absolute;">
+    <defs>
+      <linearGradient id="excellentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:1" />
+      </linearGradient>
+      <linearGradient id="goodGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#43e97b;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#38f9d7;stop-opacity:1" />
+      </linearGradient>
+      <linearGradient id="averageGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#fa709a;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#fee140;stop-opacity:1" />
+      </linearGradient>
+      <linearGradient id="poorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#f093fb;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#f5576c;stop-opacity:1" />
+      </linearGradient>
+    </defs>
+  </svg>
 
   <div class="container">
     <div class="welcome-section">
@@ -74,35 +66,140 @@
     </div>
 
     <div class="recent-section">
-      <h2>Recent Analyses</h2>
-      <div class="analyses-list" *ngIf="recentAnalyses.length > 0; else noAnalyses">
-        <mat-card *ngFor="let analysis of recentAnalyses" class="analysis-card">
-          <mat-card-content>
-            <div class="analysis-header">
-              <div>
-                <h3>{{ analysis.fileName }}</h3>
-                <p class="date">{{ analysis.date | date:'medium' }}</p>
-              </div>
-              <div class="score" [class.good]="analysis.atsScore >= 70" [class.warning]="analysis.atsScore < 70">
-                <span class="score-value">{{ analysis.atsScore }}</span>
-                <span class="score-label">ATS Score</span>
-              </div>
-            </div>
-            <div class="analysis-actions">
-              <button mat-button color="primary" (click)="viewAnalysisDetails(analysis.id)">
-                <mat-icon>visibility</mat-icon>
-                View Details
-              </button>
-              <button mat-button (click)="downloadReport(analysis.id)">
-                <mat-icon>download</mat-icon>
-                Download Report
-              </button>
-            </div>
-          </mat-card-content>
-        </mat-card>
+      <div class="section-header">
+        <div class="header-content">
+          <mat-icon class="header-icon">history</mat-icon>
+          <div>
+            <h2>Recent Analyses</h2>
+            <p class="header-subtitle">Your latest resume analysis results</p>
+          </div>
+        </div>
+        <button mat-button class="view-all-btn" *ngIf="recentAnalyses.length > 0">
+          <span>View All</span>
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
       </div>
+
+      <div class="analyses-grid" *ngIf="recentAnalyses.length > 0; else noAnalyses">
+        <div *ngFor="let analysis of recentAnalyses; let i = index" class="analysis-card">
+          
+          <!-- Score Badge -->
+          <div class="score-badge" 
+               [ngClass]="{
+                 'excellent': analysis.atsScore >= 80,
+                 'good': analysis.atsScore >= 70 && analysis.atsScore < 80,
+                 'average': analysis.atsScore >= 50 && analysis.atsScore < 70,
+                 'poor': analysis.atsScore < 50
+               }">
+            <div class="score-circle">
+              <svg class="score-ring" viewBox="0 0 120 120">
+                <circle class="score-ring-bg" cx="60" cy="60" r="54" />
+                <circle class="score-ring-progress" 
+                        cx="60" cy="60" r="54"
+                        [attr.stroke-dashoffset]="getStrokeDashoffset(analysis.atsScore)" />
+              </svg>
+              <div class="score-content">
+                <span class="score-number">{{ analysis.atsScore }}</span>
+                <span class="score-max">/100</span>
+              </div>
+            </div>
+            <span class="score-status">{{ getScoreStatus(analysis.atsScore) }}</span>
+          </div>
+
+          <!-- File Info -->
+          <div class="file-info">
+            <div class="file-icon-wrapper">
+              <mat-icon class="file-icon">{{ getFileIcon(analysis.fileName) }}</mat-icon>
+            </div>
+            <div class="file-details">
+              <h3 class="file-name">{{ analysis.fileName }}</h3>
+              <div class="file-meta">
+                <span class="meta-item">
+                  <mat-icon>schedule</mat-icon>
+                  {{ analysis.date | date:'MMM d, y' }}
+                </span>
+                <span class="meta-item">
+                  <mat-icon>access_time</mat-icon>
+                  {{ analysis.date | date:'shortTime' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="quick-stats">
+            <div class="stat-item">
+              <mat-icon>check_circle</mat-icon>
+              <div>
+                <span class="stat-value">{{ analysis.matchedKeywords || 12 }}</span>
+                <span class="stat-label">Keywords</span>
+              </div>
+            </div>
+            <div class="stat-item">
+              <mat-icon>format_align_left</mat-icon>
+              <div>
+                <span class="stat-value">{{ analysis.sections || 5 }}</span>
+                <span class="stat-label">Sections</span>
+              </div>
+            </div>
+            <div class="stat-item">
+              <mat-icon>description</mat-icon>
+              <div>
+                <span class="stat-value">{{ analysis.pages || 1 }}</span>
+                <span class="stat-label">Pages</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="card-actions">
+            <button mat-raised-button color="primary" (click)="viewAnalysisDetails(analysis.id)">
+              <mat-icon>visibility</mat-icon>
+              View Details
+            </button>
+            <button mat-icon-button class="action-icon-btn" (click)="downloadReport(analysis.id)" matTooltip="Download Report">
+              <mat-icon>download</mat-icon>
+            </button>
+            <button mat-icon-button class="action-icon-btn" matTooltip="Share">
+              <mat-icon>share</mat-icon>
+            </button>
+            <button mat-icon-button class="action-icon-btn" matTooltip="More Options" [matMenuTriggerFor]="moreMenu">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #moreMenu="matMenu">
+              <button mat-menu-item (click)="viewAnalysisDetails(analysis.id)">
+                <mat-icon>visibility</mat-icon>
+                <span>View Details</span>
+              </button>
+              <button mat-menu-item (click)="downloadReport(analysis.id)">
+                <mat-icon>download</mat-icon>
+                <span>Download PDF</span>
+              </button>
+              <button mat-menu-item>
+                <mat-icon>edit</mat-icon>
+                <span>Re-analyze</span>
+              </button>
+              <button mat-menu-item>
+                <mat-icon>delete</mat-icon>
+                <span>Delete</span>
+              </button>
+            </mat-menu>
+          </div>
+        </div>
+      </div>
+
       <ng-template #noAnalyses>
-        <p class="no-data">No analyses yet. Upload your first resume to get started!</p>
+        <div class="no-data-card">
+          <div class="no-data-icon">
+            <mat-icon>description</mat-icon>
+          </div>
+          <h3>No Analyses Yet</h3>
+          <p>Upload your first resume to get started with ATS analysis</p>
+          <button mat-raised-button color="primary" routerLink="/upload">
+            <mat-icon>upload</mat-icon>
+            Upload Resume
+          </button>
+        </div>
       </ng-template>
     </div>
 

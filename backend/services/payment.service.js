@@ -54,31 +54,48 @@ class PaymentService {
    */
   async createRazorpayIntent(userId, planId) {
     try {
+      console.log('Creating Razorpay intent for:', { userId, planId });
+
       if (!this.razorpay) {
         throw new Error('Razorpay is not configured. Please add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET to environment variables.');
       }
 
       const plan = this.plans[planId];
       if (!plan) {
-        throw new Error('Invalid plan ID');
+        console.error('Invalid plan ID:', planId);
+        console.error('Available plans:', Object.keys(this.plans));
+        throw new Error(`Invalid plan ID: ${planId}`);
       }
+
+      console.log('Plan details:', plan);
 
       const user = await User.findById(userId);
       if (!user) {
+        console.error('User not found:', userId);
         throw new Error('User not found');
       }
 
+      console.log('User found:', user.email);
+
       // Create Razorpay order
+      console.log('Creating Razorpay order...');
+      // Generate short receipt ID (max 40 chars for Razorpay)
+      const timestamp = Date.now().toString().slice(-8); // Last 8 digits
+      const userIdShort = userId.toString().slice(-8); // Last 8 chars of user ID
+      const receipt = `rcpt_${userIdShort}_${timestamp}`; // Format: rcpt_12345678_12345678 (max 28 chars)
+      
       const order = await this.razorpay.orders.create({
         amount: plan.amount,
         currency: plan.currency,
-        receipt: `receipt_${userId}_${Date.now()}`,
+        receipt: receipt,
         notes: {
           userId: userId.toString(),
           planId: planId,
           email: user.email
         }
       });
+
+      console.log('Razorpay order created:', order.id);
 
       // Create payment record
       const payment = new Payment({
@@ -92,6 +109,8 @@ class PaymentService {
       });
       await payment.save();
 
+      console.log('Payment record saved:', payment._id);
+
       return {
         orderId: order.id,
         amount: order.amount,
@@ -102,6 +121,8 @@ class PaymentService {
       };
     } catch (error) {
       console.error('Error creating Razorpay intent:', error);
+      console.error('Error details:', error.message);
+      console.error('Error stack:', error.stack);
       throw error;
     }
   }
@@ -206,17 +227,88 @@ class PaymentService {
       // Upgrade user account
       const user = await this.upgradeUserAccount(payment.userId, payment.planId);
 
-      // Send payment confirmation email
-      await emailService.sendPaymentConfirmation(user, payment);
+      // Send payment confirmation email (don't fail if this fails)
+      try {
+        await emailService.sendPaymentConfirmation(user, payment);
+      } catch (emailError) {
+        console.error('Failed to send payment confirmation email:', emailError);
+        // Continue anyway - payment is already processed
+      }
 
       return {
         success: true,
         message: 'Payment processed successfully',
-        payment
+        payment,
+        user
       };
     } catch (error) {
       console.error('Error processing payment:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Validate if user can purchase a plan
+   */
+  async validatePurchase(userId, planId) {
+    try {
+      const user = await User.findById(userId);
+      
+      if (!user) {
+        return { allowed: false, reason: 'User not found' };
+      }
+
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      // Check for Lite (one-time) purchase
+      if (planId === 'one-time') {
+        // If user has active Pro subscription, cannot buy Lite
+        if (user.userTier === 'premium' && 
+            user.subscriptionStatus === 'active' && 
+            user.subscriptionExpiresAt && 
+            user.subscriptionExpiresAt > now) {
+          return { 
+            allowed: false, 
+            reason: 'You already have an active Pro subscription. Lite plan is not available.' 
+          };
+        }
+
+        // Check if already purchased Lite today
+        if (user.lastLitePurchaseDate) {
+          const lastPurchaseDate = new Date(
+            user.lastLitePurchaseDate.getFullYear(), 
+            user.lastLitePurchaseDate.getMonth(), 
+            user.lastLitePurchaseDate.getDate()
+          );
+          
+          if (lastPurchaseDate.getTime() === today.getTime()) {
+            return { 
+              allowed: false, 
+              reason: 'You have already purchased Lite plan today. Please try again tomorrow or upgrade to Pro.' 
+            };
+          }
+        }
+      }
+
+      // Check for Pro (monthly) purchase
+      if (planId === 'monthly') {
+        // If user has active Pro subscription, cannot buy again
+        if (user.userTier === 'premium' && 
+            user.subscriptionStatus === 'active' && 
+            user.subscriptionExpiresAt && 
+            user.subscriptionExpiresAt > now) {
+          return { 
+            allowed: false, 
+            reason: 'You already have an active Pro subscription. It will auto-renew.' 
+          };
+        }
+      }
+
+      return { allowed: true };
+    } catch (error) {
+      console.error('Error validating purchase:', error);
+      return { allowed: false, reason: 'Failed to validate purchase eligibility' };
     }
   }
 
@@ -242,7 +334,8 @@ class PaymentService {
         user.subscriptionStatus = 'active';
         user.subscriptionExpiresAt = expiryDate;
       } else {
-        // One-time payment - lifetime access
+        // One-time payment - track purchase date
+        user.lastLitePurchaseDate = new Date();
         user.subscriptionStatus = 'active';
         user.subscriptionExpiresAt = null; // No expiry for one-time
       }

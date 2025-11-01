@@ -4,9 +4,8 @@ import { Router, RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -18,9 +17,8 @@ import { AuthService } from '../../services/auth.service';
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatToolbarModule,
     MatMenuModule,
-    MatDividerModule
+    MatTooltipModule
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
@@ -39,13 +37,19 @@ export class DashboardComponent implements OnInit {
       id: 1,
       fileName: 'Resume_2024.pdf',
       atsScore: 78,
-      date: new Date('2024-01-15')
+      date: new Date('2024-01-15'),
+      matchedKeywords: 15,
+      sections: 6,
+      pages: 2
     },
     {
       id: 2,
       fileName: 'My_Resume.docx',
       atsScore: 65,
-      date: new Date('2024-01-10')
+      date: new Date('2024-01-10'),
+      matchedKeywords: 10,
+      sections: 5,
+      pages: 1
     }
   ];
 
@@ -86,5 +90,30 @@ export class DashboardComponent implements OnInit {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/']);
+  }
+
+  getFileIcon(fileName: string): string {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    switch (extension) {
+      case 'pdf':
+        return 'picture_as_pdf';
+      case 'docx':
+      case 'doc':
+        return 'description';
+      default:
+        return 'insert_drive_file';
+    }
+  }
+
+  getStrokeDashoffset(score: number): number {
+    const circumference = 339.292;
+    return circumference - (circumference * score / 100);
+  }
+
+  getScoreStatus(score: number): string {
+    if (score >= 80) return 'Excellent';
+    if (score >= 70) return 'Good';
+    if (score >= 50) return 'Average';
+    return 'Needs Work';
   }
 }
