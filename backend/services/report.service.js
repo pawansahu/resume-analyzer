@@ -36,6 +36,7 @@ class ReportService {
 
         // Generate report content
         this._addHeader(doc);
+        this._addResumeOverview(doc, analysisData.parsedData);
         this._addATSScoreSection(doc, analysisData.atsScore, analysisData.recommendations);
         
         if (analysisData.jdMatchResult) {
@@ -130,6 +131,96 @@ class ReportService {
   }
 
   /**
+   * Add resume overview section to PDF
+   * @param {PDFDocument} doc - PDFKit document
+   * @param {Object} parsedData - Parsed resume data
+   */
+  _addResumeOverview(doc, parsedData) {
+    doc.fontSize(18)
+       .fillColor('#2c3e50')
+       .text('Resume Overview', { underline: true });
+    
+    doc.moveDown(0.5);
+    
+    // Extract dynamic data
+    const sections = parsedData?.sections || {};
+    const sectionCount = Object.keys(sections).length;
+    const skills = sections.skills || [];
+    const experience = sections.experience || [];
+    const education = sections.education || [];
+    const wordCount = parsedData?.metadata?.wordCount || 0;
+    const pages = parsedData?.pages || 1;
+    
+    // Create info grid
+    const infoItems = [
+      { label: 'Total Sections', value: sectionCount, icon: '📋' },
+      { label: 'Skills Listed', value: skills.length, icon: '⭐' },
+      { label: 'Work Experience', value: experience.length, icon: '💼' },
+      { label: 'Education', value: education.length, icon: '🎓' },
+      { label: 'Word Count', value: wordCount, icon: '📝' },
+      { label: 'Pages', value: pages, icon: '📄' }
+    ];
+    
+    // Display in 2 columns
+    const startY = doc.y;
+    const columnWidth = 250;
+    const rowHeight = 40;
+    
+    infoItems.forEach((item, index) => {
+      const col = index % 2;
+      const row = Math.floor(index / 2);
+      const x = 50 + (col * columnWidth);
+      const y = startY + (row * rowHeight);
+      
+      doc.fontSize(10)
+         .fillColor('#7f8c8d')
+         .text(`${item.icon} ${item.label}:`, x, y);
+      
+      doc.fontSize(16)
+         .fillColor('#2c3e50')
+         .text(item.value.toString(), x, y + 15);
+    });
+    
+    doc.y = startY + (Math.ceil(infoItems.length / 2) * rowHeight) + 10;
+    
+    // Sections detected
+    if (sectionCount > 0) {
+      doc.moveDown(1);
+      doc.fontSize(12)
+         .fillColor('#34495e')
+         .text('Sections Detected:', { underline: true });
+      
+      doc.moveDown(0.3);
+      doc.fontSize(10)
+         .fillColor('#7f8c8d');
+      
+      const sectionNames = Object.keys(sections)
+        .map(key => key.charAt(0).toUpperCase() + key.slice(1))
+        .join(', ');
+      
+      doc.text(sectionNames);
+    }
+    
+    // Top skills
+    if (skills.length > 0) {
+      doc.moveDown(1);
+      doc.fontSize(12)
+         .fillColor('#34495e')
+         .text('Top Skills:', { underline: true });
+      
+      doc.moveDown(0.3);
+      doc.fontSize(10)
+         .fillColor('#7f8c8d');
+      
+      const topSkills = skills.slice(0, 15).join(', ');
+      doc.text(topSkills);
+    }
+    
+    doc.moveDown(1);
+    this._addDivider(doc);
+  }
+
+  /**
    * Add ATS score section to PDF
    * @param {PDFDocument} doc - PDFKit document
    * @param {Object} atsScore - ATS score data
@@ -196,8 +287,13 @@ class ReportService {
         
         criticalRecs.forEach((rec, index) => {
           doc.fillColor('#34495e')
-             .text(`${index + 1}. ${rec.message}`, { indent: 10 });
-          doc.moveDown(0.3);
+             .text(`${index + 1}. ${rec.title || rec.message || 'No title'}`, { indent: 10 });
+          if (rec.description) {
+            doc.fillColor('#7f8c8d')
+               .fontSize(9)
+               .text(rec.description, { indent: 20 });
+          }
+          doc.moveDown(0.5);
         });
         doc.moveDown(0.5);
       }
@@ -211,8 +307,13 @@ class ReportService {
         
         importantRecs.forEach((rec, index) => {
           doc.fillColor('#34495e')
-             .text(`${index + 1}. ${rec.message}`, { indent: 10 });
-          doc.moveDown(0.3);
+             .text(`${index + 1}. ${rec.title || rec.message || 'No title'}`, { indent: 10 });
+          if (rec.description) {
+            doc.fillColor('#7f8c8d')
+               .fontSize(9)
+               .text(rec.description, { indent: 20 });
+          }
+          doc.moveDown(0.5);
         });
       }
     }
@@ -342,10 +443,12 @@ class ReportService {
    * @param {string} userTier - User tier
    */
   _addFooter(doc, userTier) {
-    const pageCount = doc.bufferedPageRange().count;
+    const range = doc.bufferedPageRange();
+    const pageCount = range.count;
+    const startPage = range.start;
     
     for (let i = 0; i < pageCount; i++) {
-      doc.switchToPage(i);
+      doc.switchToPage(startPage + i);
       
       doc.fontSize(8)
          .fillColor('#95a5a6')

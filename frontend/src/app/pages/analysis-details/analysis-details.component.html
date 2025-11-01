@@ -1,0 +1,209 @@
+<div class="analysis-details-container">
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <mat-spinner diameter="60"></mat-spinner>
+    <p>Loading analysis details...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-container" *ngIf="error && !loading">
+    <mat-icon class="error-icon">error_outline</mat-icon>
+    <h2>Failed to Load Analysis</h2>
+    <p>We couldn't load the analysis details. The analysis may not exist or you don't have permission to view it.</p>
+    <div class="error-actions">
+      <button mat-raised-button color="primary" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Dashboard
+      </button>
+      <button mat-stroked-button (click)="loadAnalysisDetails()">
+        <mat-icon>refresh</mat-icon>
+        Try Again
+      </button>
+    </div>
+  </div>
+
+  <!-- Analysis Content -->
+  <div class="analysis-content" *ngIf="!loading && !error && analysisData">
+    <!-- Header -->
+    <div class="page-header">
+      <button mat-icon-button class="back-button" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-info">
+        <h1>Analysis Details</h1>
+        <p class="analysis-date">
+          <mat-icon>schedule</mat-icon>
+          {{ analysisData.createdAt | date:'full' }}
+        </p>
+      </div>
+      <div class="header-actions">
+        <button mat-raised-button color="primary" (click)="downloadReport()" [disabled]="downloading">
+          <mat-spinner *ngIf="downloading" diameter="20" class="button-spinner"></mat-spinner>
+          <mat-icon *ngIf="!downloading">download</mat-icon>
+          {{ downloading ? 'Generating...' : 'Download Report' }}
+        </button>
+        <button mat-raised-button color="accent" (click)="shareAnalysis()" [disabled]="sharing">
+          <mat-spinner *ngIf="sharing" diameter="20" class="button-spinner"></mat-spinner>
+          <mat-icon *ngIf="!sharing">share</mat-icon>
+          {{ sharing ? 'Generating...' : 'Share Analysis' }}
+        </button>
+        <button mat-stroked-button (click)="reAnalyze()">
+          <mat-icon>refresh</mat-icon>
+          Re-analyze
+        </button>
+      </div>
+    </div>
+
+    <!-- Resume Info Card -->
+    <mat-card class="resume-info-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>description</mat-icon>
+        <mat-card-title>Resume Information</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <mat-icon>insert_drive_file</mat-icon>
+            <div>
+              <span class="info-label">File Name</span>
+              <span class="info-value">{{ parsedResume?.fileName || 'Resume.pdf' }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon>description</mat-icon>
+            <div>
+              <span class="info-label">Pages</span>
+              <span class="info-value">{{ parsedResume?.pages || 1 }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon>text_fields</mat-icon>
+            <div>
+              <span class="info-label">Word Count</span>
+              <span class="info-value">{{ parsedResume?.metadata?.wordCount || 'N/A' }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon>account_tree</mat-icon>
+            <div>
+              <span class="info-label">Sections</span>
+              <span class="info-value">{{ getSectionCount() }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="contact-section" *ngIf="getContactInfo().length > 0">
+          <h3>
+            <mat-icon>contact_mail</mat-icon>
+            Contact Information
+          </h3>
+          <div class="contact-chips">
+            <mat-chip *ngFor="let info of getContactInfo()">{{ info }}</mat-chip>
+          </div>
+          <div class="social-links" *ngIf="getSocialLinks().length > 0">
+            <a *ngFor="let link of getSocialLinks()" [href]="link.url" target="_blank" mat-stroked-button>
+              <mat-icon>{{ link.icon }}</mat-icon>
+              {{ link.label }}
+            </a>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- ATS Score Card -->
+    <app-ats-score-card 
+      [score]="atsScore?.totalScore || 0"
+      [loading]="false">
+    </app-ats-score-card>
+
+    <!-- Score Breakdown -->
+    <app-score-breakdown 
+      [structureScore]="atsScore?.structureScore || 0"
+      [keywordScore]="atsScore?.keywordScore || 0"
+      [readabilityScore]="atsScore?.readabilityScore || 0"
+      [formattingScore]="atsScore?.formattingScore || 0">
+    </app-score-breakdown>
+
+    <!-- Recommendations -->
+    <app-recommendations-list 
+      [recommendations]="recommendations">
+    </app-recommendations-list>
+
+    <!-- Resume Sections -->
+    <mat-card class="sections-card" *ngIf="parsedResume?.sections">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>view_list</mat-icon>
+        <mat-card-title>Resume Sections</mat-card-title>
+        <mat-card-subtitle>Parsed content from your resume</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <!-- Summary -->
+        <div class="section-block" *ngIf="parsedResume.sections.summary">
+          <h3>
+            <mat-icon>subject</mat-icon>
+            Summary
+          </h3>
+          <p class="section-content">{{ parsedResume.sections.summary }}</p>
+        </div>
+
+        <mat-divider *ngIf="parsedResume.sections.summary"></mat-divider>
+
+        <!-- Experience -->
+        <div class="section-block" *ngIf="parsedResume.sections.experience?.length > 0">
+          <h3>
+            <mat-icon>work</mat-icon>
+            Experience
+          </h3>
+          <div class="experience-list">
+            <div *ngFor="let exp of parsedResume.sections.experience" class="experience-item">
+              <h4>{{ exp.title }}</h4>
+              <ul>
+                <li *ngFor="let desc of exp.description">{{ desc }}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <mat-divider *ngIf="parsedResume.sections.experience?.length > 0"></mat-divider>
+
+        <!-- Education -->
+        <div class="section-block" *ngIf="parsedResume.sections.education?.length > 0">
+          <h3>
+            <mat-icon>school</mat-icon>
+            Education
+          </h3>
+          <div class="education-list">
+            <div *ngFor="let edu of parsedResume.sections.education" class="education-item">
+              <h4>{{ edu.degree }}</h4>
+              <ul>
+                <li *ngFor="let detail of edu.details">{{ detail }}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <mat-divider *ngIf="parsedResume.sections.education?.length > 0"></mat-divider>
+
+        <!-- Skills -->
+        <div class="section-block" *ngIf="parsedResume.sections.skills?.length > 0">
+          <h3>
+            <mat-icon>stars</mat-icon>
+            Skills
+          </h3>
+          <div class="skills-chips">
+            <mat-chip *ngFor="let skill of parsedResume.sections.skills">{{ skill }}</mat-chip>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Back to Dashboard Button -->
+    <div class="bottom-actions">
+      <button mat-raised-button color="primary" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Dashboard
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,11 +1,25 @@
-<mat-card class="breakdown-card">
-  <mat-card-header>
-    <mat-card-title>Score Breakdown</mat-card-title>
-    <mat-card-subtitle>Detailed analysis by category</mat-card-subtitle>
-  </mat-card-header>
-  
-  <mat-card-content>
-    <div class="category-list">
+<div class="breakdown-wrapper">
+  <mat-card class="breakdown-card">
+    <mat-card-header>
+      <div class="header-content">
+        <div class="header-icon-wrapper">
+          <mat-icon class="header-icon">analytics</mat-icon>
+        </div>
+        <div class="header-text">
+          <mat-card-title>
+            <span class="title-main">Score Breakdown</span>
+            <span class="title-badge">AI Powered</span>
+          </mat-card-title>
+          <mat-card-subtitle>
+            <mat-icon class="subtitle-icon">insights</mat-icon>
+            Detailed analysis by category
+          </mat-card-subtitle>
+        </div>
+      </div>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <div class="category-list">
       <div class="category-item" *ngFor="let category of categories">
         <div class="category-header">
           <div class="category-info">
@@ -48,3 +62,4 @@
     </div>
   </mat-card-content>
 </mat-card>
+</div>

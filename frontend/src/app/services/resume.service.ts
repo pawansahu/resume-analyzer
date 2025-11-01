@@ -169,6 +169,60 @@ export class ResumeService {
   }
 
   /**
+   * Get user's recent analyses
+   */
+  getUserAnalyses(limit: number = 10): Observable<any> {
+    return this.http.get(`${this.apiUrl}/resume/my-analyses`, {
+      params: { limit: limit.toString() }
+    }).pipe(
+      catchError(error => {
+        console.error('Error fetching user analyses:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Download analysis report as PDF
+   */
+  downloadReport(analysisId: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/resume/report/${analysisId}`, {
+      responseType: 'blob'
+    }).pipe(
+      catchError(error => {
+        console.error('Error downloading report:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Generate shareable link for analysis
+   */
+  generateShareLink(analysisId: string, expiresInDays: number = 7): Observable<any> {
+    return this.http.post(`${this.apiUrl}/resume/share/${analysisId}`, {
+      expiresInDays
+    }).pipe(
+      catchError(error => {
+        console.error('Error generating share link:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Get shared analysis (public)
+   */
+  getSharedAnalysis(shareToken: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/resume/shared/${shareToken}`).pipe(
+      catchError(error => {
+        console.error('Error fetching shared analysis:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
    * Validate file before upload
    */
   validateFile(file: File): { valid: boolean; error?: string } {
@@ -234,5 +288,17 @@ export class ResumeService {
     }
     
     return 'An unexpected error occurred. Please try again.';
+  }
+
+  /**
+   * Get user's current usage information
+   */
+  getUserUsage(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/resume/usage`).pipe(
+      catchError(error => {
+        console.error('Error fetching usage info:', error);
+        return throwError(() => error);
+      })
+    );
   }
 }

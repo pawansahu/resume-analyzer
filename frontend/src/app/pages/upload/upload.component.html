@@ -4,6 +4,16 @@
     <div class="upload-header">
       <h1>Upload Your Resume</h1>
       <p>Get instant ATS analysis and optimization recommendations in seconds</p>
+      
+      <!-- Usage Counter -->
+      <div class="usage-counter" *ngIf="usageLimit < 999">
+        <mat-icon>analytics</mat-icon>
+        <span>Usage Today: <strong>{{ usageCount }}/{{ usageLimit }}</strong> analyses</span>
+        <button mat-button color="primary" routerLink="/pricing" *ngIf="usageLimitReached">
+          <mat-icon>workspace_premium</mat-icon>
+          Upgrade for More
+        </button>
+      </div>
     </div>
 
     <!-- Upload Card -->
@@ -17,19 +27,38 @@
           (dragleave)="onDragLeave($event)"
           (drop)="onDrop($event)"
           [class.drag-over]="isDragging"
-          (click)="fileInput.click()">
+          [class.disabled]="usageLimitReached"
+          (click)="!usageLimitReached && fileInput.click()">
           
-          <mat-icon class="upload-icon">cloud_upload</mat-icon>
-          <h3>Drag & Drop Your Resume</h3>
-          <p>or click to browse files</p>
-          <p>Supports PDF and DOCX files up to 5MB</p>
+          <!-- Normal State -->
+          <ng-container *ngIf="!usageLimitReached">
+            <mat-icon class="upload-icon">cloud_upload</mat-icon>
+            <h3>Drag & Drop Your Resume</h3>
+            <p>or click to browse files</p>
+            <p>Supports PDF and DOCX files up to 5MB</p>
+            
+            <div class="file-input-label">
+              <button mat-raised-button color="primary" type="button">
+                <mat-icon>folder_open</mat-icon>
+                Browse Files
+              </button>
+            </div>
+          </ng-container>
           
-          <div class="file-input-label">
-            <button mat-raised-button color="primary" type="button">
-              <mat-icon>folder_open</mat-icon>
-              Browse Files
-            </button>
-          </div>
+          <!-- Limit Reached State -->
+          <ng-container *ngIf="usageLimitReached">
+            <mat-icon class="upload-icon limit-icon">block</mat-icon>
+            <h3>Daily Limit Reached</h3>
+            <p>You've used {{ usageCount }}/{{ usageLimit }} analyses today</p>
+            <p>Your limit will reset tomorrow at midnight</p>
+            
+            <div class="file-input-label">
+              <button mat-raised-button color="accent" routerLink="/pricing">
+                <mat-icon>workspace_premium</mat-icon>
+                Upgrade to Premium
+              </button>
+            </div>
+          </ng-container>
           
           <input 
             #fileInput
@@ -62,10 +91,20 @@
               mat-raised-button
               color="primary"
               (click)="uploadFile()"
-              [disabled]="!selectedFile">
+              [disabled]="!selectedFile || usageLimitReached">
               <mat-icon>assessment</mat-icon>
               Upload & Analyze
             </button>
+            
+            <!-- Limit Reached Warning -->
+            <div class="limit-warning" *ngIf="usageLimitReached">
+              <mat-icon>warning</mat-icon>
+              <span>Daily limit reached ({{ usageCount }}/{{ usageLimit }})</span>
+              <button mat-raised-button color="accent" routerLink="/pricing">
+                <mat-icon>workspace_premium</mat-icon>
+                Upgrade to Premium
+              </button>
+            </div>
           </div>
         </div>
       </mat-card-content>
@@ -134,12 +173,15 @@
     <div class="analysis-results" *ngIf="atsScore && uploadProgress && uploadProgress.status === 'complete'">
       <!-- ATS Score Card -->
       <app-ats-score-card 
-        [score]="atsScore.overallScore || atsScore">
+        [score]="atsScore.totalScore || atsScore.overallScore || atsScore">
       </app-ats-score-card>
 
       <!-- Score Breakdown -->
       <app-score-breakdown 
-        [breakdown]="atsScore.breakdown">
+        [structureScore]="atsScore?.structureScore || 0"
+        [keywordScore]="atsScore?.keywordScore || 0"
+        [readabilityScore]="atsScore?.readabilityScore || 0"
+        [formattingScore]="atsScore?.formattingScore || 0">
       </app-score-breakdown>
 
       <!-- Recommendations -->

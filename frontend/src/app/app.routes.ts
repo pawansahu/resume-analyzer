@@ -34,6 +34,14 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent)
   },
   {
+    path: 'analysis/:id',
+    loadComponent: () => import('./pages/analysis-details/analysis-details.component').then(m => m.AnalysisDetailsComponent)
+  },
+  {
+    path: 'shared/:token',
+    loadComponent: () => import('./pages/shared-analysis/shared-analysis.component').then(m => m.SharedAnalysisComponent)
+  },
+  {
     path: '**',
     redirectTo: ''
   }

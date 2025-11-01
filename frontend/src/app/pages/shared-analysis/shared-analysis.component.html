@@ -1,0 +1,144 @@
+<div class="shared-analysis-container">
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <mat-spinner diameter="60"></mat-spinner>
+    <p>Loading shared analysis...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-container" *ngIf="error && !loading">
+    <mat-icon class="error-icon">link_off</mat-icon>
+    <h2>Unable to Load Analysis</h2>
+    <p>{{ errorMessage }}</p>
+    <div class="error-actions">
+      <button mat-raised-button color="primary" (click)="goToUpload()">
+        <mat-icon>upload</mat-icon>
+        Analyze Your Resume
+      </button>
+      <button mat-stroked-button (click)="goToRegister()">
+        <mat-icon>person_add</mat-icon>
+        Create Account
+      </button>
+    </div>
+  </div>
+
+  <!-- Analysis Content -->
+  <div class="analysis-content" *ngIf="!loading && !error && analysisData">
+    <!-- Header -->
+    <div class="page-header">
+      <div class="header-info">
+        <h1>
+          <mat-icon>share</mat-icon>
+          Shared Resume Analysis
+        </h1>
+        <p class="analysis-meta">
+          <mat-icon>description</mat-icon>
+          {{ analysisData.fileName }}
+          <span class="separator">•</span>
+          <mat-icon>schedule</mat-icon>
+          {{ analysisData.createdAt | date:'mediumDate' }}
+        </p>
+      </div>
+      <div class="header-actions">
+        <button mat-raised-button color="primary" (click)="goToUpload()">
+          <mat-icon>upload</mat-icon>
+          Analyze Your Resume
+        </button>
+      </div>
+    </div>
+
+    <!-- Analysis Stats -->
+    <mat-card class="stats-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>analytics</mat-icon>
+        <mat-card-title>Analysis Summary</mat-card-title>
+        <mat-card-subtitle>Key metrics from this resume analysis</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <mat-icon>format_align_left</mat-icon>
+            <div>
+              <span class="stat-value">{{ analysisData.sections }}</span>
+              <span class="stat-label">Sections</span>
+            </div>
+          </div>
+          <div class="stat-item">
+            <mat-icon>stars</mat-icon>
+            <div>
+              <span class="stat-value">{{ analysisData.skills }}</span>
+              <span class="stat-label">Skills</span>
+            </div>
+          </div>
+          <div class="stat-item">
+            <mat-icon>trending_up</mat-icon>
+            <div>
+              <span class="stat-value">{{ atsScore?.totalScore || 0 }}/100</span>
+              <span class="stat-label">ATS Score</span>
+            </div>
+          </div>
+          <div class="stat-item">
+            <mat-icon>lightbulb</mat-icon>
+            <div>
+              <span class="stat-value">{{ recommendations.length }}</span>
+              <span class="stat-label">Recommendations</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- ATS Score Card -->
+    <app-ats-score-card 
+      [score]="atsScore?.totalScore || 0"
+      [loading]="false">
+    </app-ats-score-card>
+
+    <!-- Score Breakdown -->
+    <app-score-breakdown 
+      [structureScore]="atsScore?.structureScore || 0"
+      [keywordScore]="atsScore?.keywordScore || 0"
+      [readabilityScore]="atsScore?.readabilityScore || 0"
+      [formattingScore]="atsScore?.formattingScore || 0">
+    </app-score-breakdown>
+
+    <!-- Recommendations -->
+    <app-recommendations-list 
+      [recommendations]="recommendations">
+    </app-recommendations-list>
+
+    <!-- Call to Action -->
+    <mat-card class="cta-card">
+      <mat-card-content>
+        <div class="cta-content">
+          <div class="cta-text">
+            <h3>
+              <mat-icon>rocket_launch</mat-icon>
+              Want to analyze your own resume?
+            </h3>
+            <p>Get detailed ATS analysis, personalized recommendations, and improve your job search success.</p>
+          </div>
+          <div class="cta-actions">
+            <button mat-raised-button color="primary" (click)="goToUpload()">
+              <mat-icon>upload</mat-icon>
+              Upload Your Resume
+            </button>
+            <button mat-stroked-button (click)="goToRegister()">
+              <mat-icon>person_add</mat-icon>
+              Create Free Account
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Watermark -->
+    <div class="watermark">
+      <p>
+        <mat-icon>verified</mat-icon>
+        Powered by Resume Analyzer - 
+        <a routerLink="/" target="_blank">Get your free analysis</a>
+      </p>
+    </div>
+  </div>
+</div>

@@ -33,13 +33,33 @@ export class ScoreBreakdownComponent {
   @Input() readabilityScore: number = 0;
   @Input() formattingScore: number = 0;
   
+  get debugInfo(): string {
+    return JSON.stringify({
+      structureScore: this.structureScore,
+      keywordScore: this.keywordScore,
+      readabilityScore: this.readabilityScore,
+      formattingScore: this.formattingScore
+    }, null, 2);
+  }
+  
   // Accept breakdown object as well
   @Input() set breakdown(value: any) {
+    console.log('🔍 Breakdown received:', value);
+    console.log('🔍 Breakdown type:', typeof value);
+    
     if (value) {
-      this.structureScore = value.structure || 0;
-      this.keywordScore = value.keywords || 0;
-      this.readabilityScore = value.readability || 0;
-      this.formattingScore = value.formatting || 0;
+      // Handle different formats
+      this.structureScore = value.structure || value.structureScore || 0;
+      this.keywordScore = value.keywords || value.keywordScore || 0;
+      this.readabilityScore = value.readability || value.readabilityScore || 0;
+      this.formattingScore = value.formatting || value.formattingScore || 0;
+      
+      console.log('✅ Scores set:', {
+        structure: this.structureScore,
+        keywords: this.keywordScore,
+        readability: this.readabilityScore,
+        formatting: this.formattingScore
+      });
     }
   }
 

@@ -42,6 +42,22 @@ const analysisResultSchema = new mongoose.Schema({
   },
   reportExpiresAt: {
     type: Date
+  },
+  shareToken: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
+  isPublic: {
+    type: Boolean,
+    default: false
+  },
+  shareExpiresAt: {
+    type: Date
+  },
+  shareCount: {
+    type: Number,
+    default: 0
   }
 }, {
   timestamps: true
@@ -50,6 +66,7 @@ const analysisResultSchema = new mongoose.Schema({
 // Indexes
 analysisResultSchema.index({ userId: 1, createdAt: -1 });
 analysisResultSchema.index({ resumeS3Key: 1 });
+analysisResultSchema.index({ shareToken: 1 });
 
 const AnalysisResult = mongoose.model('AnalysisResult', analysisResultSchema);
 

@@ -80,7 +80,25 @@
         </button>
       </div>
 
-      <div class="analyses-grid" *ngIf="recentAnalyses.length > 0; else noAnalyses">
+      <!-- Loading State -->
+      <div class="loading-container" *ngIf="loadingAnalyses">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>Loading your analyses...</p>
+      </div>
+
+      <!-- Error State -->
+      <div class="error-container" *ngIf="analysesError && !loadingAnalyses">
+        <mat-icon class="error-icon">error_outline</mat-icon>
+        <h3>Failed to load analyses</h3>
+        <p>There was an error loading your recent analyses.</p>
+        <button mat-raised-button color="primary" (click)="loadRecentAnalyses()">
+          <mat-icon>refresh</mat-icon>
+          Try Again
+        </button>
+      </div>
+
+      <!-- Analyses Grid -->
+      <div class="analyses-grid" *ngIf="!loadingAnalyses && !analysesError && recentAnalyses.length > 0">
         <div *ngFor="let analysis of recentAnalyses; let i = index" class="analysis-card">
           
           <!-- Score Badge -->
@@ -131,21 +149,21 @@
             <div class="stat-item">
               <mat-icon>check_circle</mat-icon>
               <div>
-                <span class="stat-value">{{ analysis.matchedKeywords || 12 }}</span>
-                <span class="stat-label">Keywords</span>
+                <span class="stat-value">{{ analysis.matchedKeywords }}</span>
+                <span class="stat-label">Skills</span>
               </div>
             </div>
             <div class="stat-item">
               <mat-icon>format_align_left</mat-icon>
               <div>
-                <span class="stat-value">{{ analysis.sections || 5 }}</span>
+                <span class="stat-value">{{ analysis.sections }}</span>
                 <span class="stat-label">Sections</span>
               </div>
             </div>
             <div class="stat-item">
               <mat-icon>description</mat-icon>
               <div>
-                <span class="stat-value">{{ analysis.pages || 1 }}</span>
+                <span class="stat-value">{{ analysis.pages }}</span>
                 <span class="stat-label">Pages</span>
               </div>
             </div>
@@ -160,7 +178,7 @@
             <button mat-icon-button class="action-icon-btn" (click)="downloadReport(analysis.id)" matTooltip="Download Report">
               <mat-icon>download</mat-icon>
             </button>
-            <button mat-icon-button class="action-icon-btn" matTooltip="Share">
+            <button mat-icon-button class="action-icon-btn" (click)="shareAnalysis(analysis.id, $event)" matTooltip="Share">
               <mat-icon>share</mat-icon>
             </button>
             <button mat-icon-button class="action-icon-btn" matTooltip="More Options" [matMenuTriggerFor]="moreMenu">
@@ -175,6 +193,10 @@
                 <mat-icon>download</mat-icon>
                 <span>Download PDF</span>
               </button>
+              <button mat-menu-item (click)="shareAnalysis(analysis.id)">
+                <mat-icon>share</mat-icon>
+                <span>Share Analysis</span>
+              </button>
               <button mat-menu-item>
                 <mat-icon>edit</mat-icon>
                 <span>Re-analyze</span>
@@ -188,19 +210,18 @@
         </div>
       </div>
 
-      <ng-template #noAnalyses>
-        <div class="no-data-card">
-          <div class="no-data-icon">
-            <mat-icon>description</mat-icon>
-          </div>
-          <h3>No Analyses Yet</h3>
-          <p>Upload your first resume to get started with ATS analysis</p>
-          <button mat-raised-button color="primary" routerLink="/upload">
-            <mat-icon>upload</mat-icon>
-            Upload Resume
-          </button>
+      <!-- Empty State -->
+      <div class="no-data-card" *ngIf="!loadingAnalyses && !analysesError && recentAnalyses.length === 0">
+        <div class="no-data-icon">
+          <mat-icon>description</mat-icon>
         </div>
-      </ng-template>
+        <h3>No Analyses Yet</h3>
+        <p>Upload your first resume to get started with ATS analysis and see your results here</p>
+        <button mat-raised-button color="primary" routerLink="/upload">
+          <mat-icon>upload</mat-icon>
+          Upload Your First Resume
+        </button>
+      </div>
     </div>
 
     <div class="upgrade-section" *ngIf="user.tier === 'free'">
