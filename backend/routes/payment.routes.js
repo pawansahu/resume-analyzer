@@ -92,4 +92,37 @@ router.get(
   paymentController.getRefundRate
 );
 
+/**
+ * @route   POST /api/payments/billing-portal
+ * @desc    Create Stripe billing portal session
+ * @access  Private
+ */
+router.post(
+  '/billing-portal',
+  authMiddleware.authenticate,
+  paymentController.createBillingPortal
+);
+
+/**
+ * @route   POST /api/payments/cancel-subscription
+ * @desc    Cancel subscription
+ * @access  Private
+ */
+router.post(
+  '/cancel-subscription',
+  authMiddleware.authenticate,
+  paymentController.cancelSubscription
+);
+
+/**
+ * @route   GET /api/payments/subscription
+ * @desc    Get subscription details
+ * @access  Private
+ */
+router.get(
+  '/subscription',
+  authMiddleware.authenticate,
+  paymentController.getSubscriptionDetails
+);
+
 export default router;

@@ -220,8 +220,21 @@ class PaymentService {
         return { success: true, message: 'Payment already processed' };
       }
 
-      // Update payment status
+      // Calculate subscription dates
+      const subscriptionStartDate = new Date();
+      let subscriptionEndDate = null;
+      
+      // For monthly plan, add 30 days
+      if (payment.planId === 'monthly') {
+        subscriptionEndDate = new Date(subscriptionStartDate);
+        subscriptionEndDate.setDate(subscriptionEndDate.getDate() + 30);
+      }
+      // For one-time plan, it's immediate access (no end date)
+      
+      // Update payment status and subscription dates
       payment.status = 'completed';
+      payment.subscriptionStartDate = subscriptionStartDate;
+      payment.subscriptionEndDate = subscriptionEndDate;
       await payment.save();
 
       // Upgrade user account
@@ -669,6 +682,169 @@ class PaymentService {
       return payments;
     } catch (error) {
       console.error('Error fetching user payments:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create billing portal session - Razorpay only
+   * Note: Razorpay doesn't have a customer portal like Stripe
+   * Users manage subscriptions through cancellation or upgrade
+   */
+  async createBillingPortalSession(userId, returnUrl) {
+    try {
+      const user = await User.findById(userId);
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      // Check if user has premium subscription
+      if (user.userTier !== 'premium') {
+        throw new Error('Only premium users can access billing management');
+      }
+
+      // Razorpay doesn't have a customer portal
+      // Return subscription details instead
+      return {
+        message: 'Razorpay does not have a customer portal. You can manage your subscription from the profile page.',
+        subscription: {
+          status: user.subscriptionStatus,
+          tier: user.userTier,
+          expiresAt: user.subscriptionExpiresAt,
+          provider: 'razorpay'
+        }
+      };
+    } catch (error) {
+      console.error('Error accessing billing management:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Cancel subscription - Razorpay only, immediate revocation
+   */
+  async cancelSubscription(userId, reason) {
+    try {
+      const user = await User.findById(userId);
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      if (user.userTier !== 'premium') {
+        throw new Error('No active subscription to cancel');
+      }
+
+      // Check if already cancelled
+      if (user.subscriptionStatus === 'cancelled') {
+        return {
+          success: true,
+          message: 'Subscription is already cancelled.',
+          user: {
+            userTier: user.userTier,
+            subscriptionStatus: user.subscriptionStatus,
+            subscriptionExpiresAt: null,
+            cancelledAt: user.cancelledAt
+          }
+        };
+      }
+
+      // Cancel Razorpay subscription if exists
+      if (user.razorpaySubscriptionId && this.razorpay) {
+        try {
+          await this.razorpay.subscriptions.cancel(user.razorpaySubscriptionId);
+          console.log('✅ Razorpay subscription cancelled:', user.razorpaySubscriptionId);
+        } catch (razorpayError) {
+          console.error('❌ Error cancelling Razorpay subscription:', razorpayError);
+          // Continue with cancellation even if Razorpay API fails
+        }
+      }
+
+      // IMMEDIATE REVOCATION - Downgrade to free tier immediately
+      user.userTier = 'free';
+      user.subscriptionStatus = 'cancelled';
+      user.subscriptionExpiresAt = null;
+      user.lastLitePurchaseDate = null;
+      user.razorpaySubscriptionId = null;
+      user.razorpayCustomerId = null;
+      user.paymentProvider = null;
+      user.cancellationReason = reason || 'User requested cancellation';
+      user.cancelledAt = new Date();
+      
+      // Reset usage count to free tier limit
+      user.usageCount = 0;
+      user.dailyUsageResetAt = new Date(new Date().setHours(24, 0, 0, 0));
+
+      await user.save();
+
+      console.log('✅ User downgraded to free tier:', userId);
+
+      // Send cancellation confirmation email
+      try {
+        await emailService.sendSubscriptionCancellation(user);
+      } catch (emailError) {
+        console.error('⚠️  Failed to send cancellation email:', emailError);
+        // Don't fail the cancellation if email fails
+      }
+
+      return {
+        success: true,
+        message: 'Subscription cancelled immediately. All premium features have been revoked. You are now on the free plan.',
+        user: {
+          userTier: 'free',
+          subscriptionStatus: 'cancelled',
+          subscriptionExpiresAt: null,
+          cancelledAt: user.cancelledAt,
+          cancellationReason: user.cancellationReason,
+          usageCount: user.usageCount
+        }
+      };
+    } catch (error) {
+      console.error('❌ Error cancelling subscription:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get subscription details
+   */
+  async getSubscriptionDetails(userId) {
+    try {
+      const user = await User.findById(userId);
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      const details = {
+        tier: user.userTier,
+        status: user.subscriptionStatus,
+        expiresAt: user.subscriptionExpiresAt,
+        cancelledAt: user.cancelledAt,
+        cancellationReason: user.cancellationReason
+      };
+
+      // If user has Stripe subscription, get additional details
+      if (user.stripeSubscriptionId && this.stripe) {
+        try {
+          const subscription = await this.stripe.subscriptions.retrieve(
+            user.stripeSubscriptionId
+          );
+
+          details.stripeDetails = {
+            currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+            currentPeriodStart: new Date(subscription.current_period_start * 1000),
+            cancelAtPeriodEnd: subscription.cancel_at_period_end,
+            amount: subscription.items.data[0]?.price?.unit_amount / 100,
+            currency: subscription.items.data[0]?.price?.currency,
+            interval: subscription.items.data[0]?.price?.recurring?.interval
+          };
+        } catch (stripeError) {
+          console.error('Error fetching Stripe subscription:', stripeError);
+        }
+      }
+
+      return details;
+    } catch (error) {
+      console.error('Error getting subscription details:', error);
       throw error;
     }
   }

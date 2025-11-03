@@ -112,7 +112,7 @@ export const requireAdmin = async (req, res, next) => {
 
     // Fetch full user details to check admin status
     const user = await User.findById(req.user.userId);
-    
+
     if (!user || user.userTier !== 'admin') {
       return res.status(403).json({
         success: false,

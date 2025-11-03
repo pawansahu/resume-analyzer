@@ -232,7 +232,7 @@ export const getPaymentHistory = async (req, res) => {
     const userId = req.user.userId;
     const payments = await paymentService.getUserPayments(userId);
 
-    res.json({ success: true, payments });
+    res.json({ success: true, data: payments });
   } catch (error) {
     console.error('Error fetching payment history:', error);
     res.status(500).json({ 
@@ -256,6 +256,76 @@ export const getRefundRate = async (req, res) => {
     res.status(500).json({ 
       success: false, 
       error: 'Failed to fetch refund rate' 
+    });
+  }
+};
+
+/**
+ * Create billing portal session
+ */
+export const createBillingPortal = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { returnUrl } = req.body;
+
+    const session = await paymentService.createBillingPortalSession(userId, returnUrl);
+
+    res.json({ 
+      success: true, 
+      url: session.url,
+      sessionId: session.sessionId
+    });
+  } catch (error) {
+    console.error('Error creating billing portal:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message || 'Failed to create billing portal session' 
+    });
+  }
+};
+
+/**
+ * Cancel subscription
+ */
+export const cancelSubscription = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { reason } = req.body;
+
+    const result = await paymentService.cancelSubscription(userId, reason);
+
+    res.json({ 
+      success: true, 
+      message: result.message,
+      expiresAt: result.expiresAt,
+      user: result.user // Return updated user data for frontend
+    });
+  } catch (error) {
+    console.error('Error cancelling subscription:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message || 'Failed to cancel subscription' 
+    });
+  }
+};
+
+/**
+ * Get subscription details
+ */
+export const getSubscriptionDetails = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const details = await paymentService.getSubscriptionDetails(userId);
+
+    res.json({ 
+      success: true, 
+      subscription: details
+    });
+  } catch (error) {
+    console.error('Error fetching subscription details:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to fetch subscription details' 
     });
   }
 };

@@ -39,6 +39,29 @@ const userSchema = new mongoose.Schema({
   lastLitePurchaseDate: {
     type: Date
   },
+  stripeCustomerId: {
+    type: String
+  },
+  stripeSubscriptionId: {
+    type: String
+  },
+  razorpayCustomerId: {
+    type: String
+  },
+  razorpaySubscriptionId: {
+    type: String
+  },
+  paymentProvider: {
+    type: String,
+    enum: ['razorpay', 'stripe', null],
+    default: null
+  },
+  cancellationReason: {
+    type: String
+  },
+  cancelledAt: {
+    type: Date
+  },
   usageCount: {
     type: Number,
     default: 0
@@ -54,6 +77,18 @@ const userSchema = new mongoose.Schema({
   },
   lastLoginAt: {
     type: Date
+  },
+  profileImage: {
+    type: String,
+    default: null
+  },
+  phone: {
+    type: String,
+    trim: true
+  },
+  bio: {
+    type: String,
+    trim: true
   }
 }, {
   timestamps: true

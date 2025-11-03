@@ -37,6 +37,12 @@ const paymentSchema = new mongoose.Schema({
   },
   refundedAt: {
     type: Date
+  },
+  subscriptionStartDate: {
+    type: Date
+  },
+  subscriptionEndDate: {
+    type: Date
   }
 }, {
   timestamps: true
