@@ -1,22 +1,31 @@
 <div class="profile-container">
-  <div class="container">
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loadingProfile">
+    <mat-spinner diameter="60"></mat-spinner>
+    <p>Loading profile...</p>
+  </div>
+
+  <div class="container" *ngIf="!loadingProfile">
     <!-- Header -->
     <div class="profile-header">
       <div class="header-content">
         <div class="avatar-section">
-          <div class="avatar">
-            <mat-icon>account_circle</mat-icon>
+          <div class="avatar" [class.uploading]="uploadingImage">
+            <img *ngIf="imagePreview" [src]="imagePreview" alt="Profile" />
+            <mat-icon *ngIf="!imagePreview">account_circle</mat-icon>
+            <mat-spinner *ngIf="uploadingImage" diameter="60" class="upload-spinner"></mat-spinner>
           </div>
-          <button mat-button class="change-avatar-btn">
+          <input type="file" #fileInput accept="image/*" (change)="onFileSelected($event)" style="display: none" />
+          <button mat-button class="change-avatar-btn" (click)="fileInput.click()" [disabled]="uploadingImage">
             <mat-icon>photo_camera</mat-icon>
-            Change Photo
+            {{ uploadingImage ? "Uploading..." : "Change Photo" }}
           </button>
         </div>
         <div class="user-info">
           <h1>{{ user.firstName }} {{ user.lastName }}</h1>
           <p class="email">{{ user.email }}</p>
           <div class="tier-badge" [ngClass]="getTierBadgeClass()">
-            <mat-icon>{{ user.userTier === 'premium' ? 'workspace_premium' : 'person' }}</mat-icon>
+            <mat-icon>{{ user.userTier === "premium" ? "workspace_premium" : "person" }}</mat-icon>
             <span>{{ user.userTier | uppercase }} PLAN</span>
           </div>
         </div>
@@ -32,7 +41,7 @@
         <div class="stat-card">
           <mat-icon>calendar_today</mat-icon>
           <div>
-            <span class="stat-value">{{ user.createdAt | date:'MMM yyyy' }}</span>
+            <span class="stat-value">{{ user.createdAt | date : "MMM yyyy" }}</span>
             <span class="stat-label">Member Since</span>
           </div>
         </div>
@@ -47,56 +56,57 @@
           <mat-icon>person</mat-icon>
           <span>Profile Information</span>
         </ng-template>
-        
+
         <div class="tab-content">
           <mat-card class="form-card">
             <mat-card-content>
               <h2>Personal Information</h2>
               <p class="subtitle">Update your personal details and information</p>
-              
+
               <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
                 <div class="form-row">
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>First Name</mat-label>
-                    <input matInput formControlName="firstName" placeholder="Enter your first name">
+                    <input matInput formControlName="firstName" placeholder="Enter your first name" />
                     <mat-icon matPrefix>person</mat-icon>
-                    <mat-error *ngIf="profileForm.get('firstName')?.hasError('required')">
-                      First name is required
-                    </mat-error>
-                    <mat-error *ngIf="profileForm.get('firstName')?.hasError('minlength')">
-                      First name must be at least 2 characters
-                    </mat-error>
+                    <mat-error *ngIf="profileForm.get('firstName')?.hasError('required')"> First name is required </mat-error>
+                    <mat-error *ngIf="profileForm.get('firstName')?.hasError('minlength')"> First name must be at least 2 characters </mat-error>
                   </mat-form-field>
 
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>Last Name</mat-label>
-                    <input matInput formControlName="lastName" placeholder="Enter your last name">
+                    <input matInput formControlName="lastName" placeholder="Enter your last name" />
                     <mat-icon matPrefix>person</mat-icon>
-                    <mat-error *ngIf="profileForm.get('lastName')?.hasError('required')">
-                      Last name is required
-                    </mat-error>
-                    <mat-error *ngIf="profileForm.get('lastName')?.hasError('minlength')">
-                      Last name must be at least 2 characters
-                    </mat-error>
+                    <mat-error *ngIf="profileForm.get('lastName')?.hasError('required')"> Last name is required </mat-error>
+                    <mat-error *ngIf="profileForm.get('lastName')?.hasError('minlength')"> Last name must be at least 2 characters </mat-error>
                   </mat-form-field>
                 </div>
 
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>Email Address</mat-label>
-                  <input matInput formControlName="email" type="email" placeholder="Enter your email">
+                  <input matInput formControlName="email" type="email" placeholder="Your email" readonly />
                   <mat-icon matPrefix>email</mat-icon>
-                  <mat-error *ngIf="profileForm.get('email')?.hasError('required')">
-                    Email is required
-                  </mat-error>
-                  <mat-error *ngIf="profileForm.get('email')?.hasError('email')">
-                    Please enter a valid email
-                  </mat-error>
+                  <mat-hint>Email cannot be changed</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Phone Number</mat-label>
+                  <input matInput formControlName="phone" type="tel" placeholder="Enter your phone number" />
+                  <mat-icon matPrefix>phone</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Bio</mat-label>
+                  <textarea matInput formControlName="bio" rows="4" placeholder="Tell us about yourself" maxlength="500"></textarea>
+                  <mat-icon matPrefix>description</mat-icon>
+                  <mat-hint align="end">{{ profileForm.get("bio")?.value?.length || 0 }}/500</mat-hint>
+                  <mat-error *ngIf="profileForm.get('bio')?.hasError('maxlength')"> Bio must be less than 500 characters </mat-error>
                 </mat-form-field>
 
                 <div class="form-actions">
                   <button mat-raised-button color="primary" type="submit" [disabled]="!profileForm.valid || loading">
                     <mat-icon>save</mat-icon>
-                    {{ loading ? 'Saving...' : 'Save Changes' }}
+                    {{ loading ? "Saving..." : "Save Changes" }}
                   </button>
                   <button mat-button type="button" (click)="loadUserProfile()">
                     <mat-icon>refresh</mat-icon>
@@ -115,67 +125,50 @@
           <mat-icon>lock</mat-icon>
           <span>Security</span>
         </ng-template>
-        
+
         <div class="tab-content">
           <mat-card class="form-card">
             <mat-card-content>
               <h2>Change Password</h2>
               <p class="subtitle">Ensure your account is using a strong password</p>
-              
+
               <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>Current Password</mat-label>
-                  <input matInput [type]="hideCurrentPassword ? 'password' : 'text'" 
-                         formControlName="currentPassword" placeholder="Enter current password">
+                  <input matInput [type]="hideCurrentPassword ? 'password' : 'text'" formControlName="currentPassword" placeholder="Enter current password" />
                   <mat-icon matPrefix>lock</mat-icon>
-                  <button mat-icon-button matSuffix type="button" 
-                          (click)="hideCurrentPassword = !hideCurrentPassword">
-                    <mat-icon>{{ hideCurrentPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                  <button mat-icon-button matSuffix type="button" (click)="hideCurrentPassword = !hideCurrentPassword">
+                    <mat-icon>{{ hideCurrentPassword ? "visibility_off" : "visibility" }}</mat-icon>
                   </button>
-                  <mat-error *ngIf="passwordForm.get('currentPassword')?.hasError('required')">
-                    Current password is required
-                  </mat-error>
+                  <mat-error *ngIf="passwordForm.get('currentPassword')?.hasError('required')"> Current password is required </mat-error>
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>New Password</mat-label>
-                  <input matInput [type]="hideNewPassword ? 'password' : 'text'" 
-                         formControlName="newPassword" placeholder="Enter new password">
+                  <input matInput [type]="hideNewPassword ? 'password' : 'text'" formControlName="newPassword" placeholder="Enter new password" />
                   <mat-icon matPrefix>lock_open</mat-icon>
-                  <button mat-icon-button matSuffix type="button" 
-                          (click)="hideNewPassword = !hideNewPassword">
-                    <mat-icon>{{ hideNewPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                  <button mat-icon-button matSuffix type="button" (click)="hideNewPassword = !hideNewPassword">
+                    <mat-icon>{{ hideNewPassword ? "visibility_off" : "visibility" }}</mat-icon>
                   </button>
-                  <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('required')">
-                    New password is required
-                  </mat-error>
-                  <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('minlength')">
-                    Password must be at least 8 characters
-                  </mat-error>
+                  <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('required')"> New password is required </mat-error>
+                  <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('minlength')"> Password must be at least 8 characters </mat-error>
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" class="full-width">
                   <mat-label>Confirm New Password</mat-label>
-                  <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" 
-                         formControlName="confirmPassword" placeholder="Confirm new password">
+                  <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" formControlName="confirmPassword" placeholder="Confirm new password" />
                   <mat-icon matPrefix>lock_open</mat-icon>
-                  <button mat-icon-button matSuffix type="button" 
-                          (click)="hideConfirmPassword = !hideConfirmPassword">
-                    <mat-icon>{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                  <button mat-icon-button matSuffix type="button" (click)="hideConfirmPassword = !hideConfirmPassword">
+                    <mat-icon>{{ hideConfirmPassword ? "visibility_off" : "visibility" }}</mat-icon>
                   </button>
-                  <mat-error *ngIf="passwordForm.get('confirmPassword')?.hasError('required')">
-                    Please confirm your password
-                  </mat-error>
-                  <mat-error *ngIf="passwordForm.hasError('passwordMismatch')">
-                    Passwords do not match
-                  </mat-error>
+                  <mat-error *ngIf="passwordForm.get('confirmPassword')?.hasError('required')"> Please confirm your password </mat-error>
+                  <mat-error *ngIf="passwordForm.hasError('passwordMismatch')"> Passwords do not match </mat-error>
                 </mat-form-field>
 
                 <div class="form-actions">
-                  <button mat-raised-button color="primary" type="submit" 
-                          [disabled]="!passwordForm.valid || loading">
+                  <button mat-raised-button color="primary" type="submit" [disabled]="!passwordForm.valid || loading">
                     <mat-icon>security</mat-icon>
-                    {{ loading ? 'Updating...' : 'Update Password' }}
+                    {{ loading ? "Updating..." : "Update Password" }}
                   </button>
                 </div>
               </form>
@@ -184,13 +177,13 @@
         </div>
       </mat-tab>
 
-      <!-- Subscription Tab -->
-      <mat-tab>
+      <!-- Subscription Tab - Only show if user has/had premium -->
+      <mat-tab *ngIf="hasSubscriptionAccess()">
         <ng-template mat-tab-label>
           <mat-icon>workspace_premium</mat-icon>
           <span>Subscription</span>
         </ng-template>
-        
+
         <div class="tab-content">
           <mat-card class="subscription-card">
             <mat-card-content>
@@ -204,54 +197,274 @@
                 </div>
               </div>
 
-              <div class="plan-details">
-                <div class="detail-item">
-                  <mat-icon>check_circle</mat-icon>
+              <!-- Billing Information (Premium Only) -->
+              <div class="billing-info" *ngIf="user.userTier === 'premium'">
+                <div class="billing-item">
+                  <mat-icon>event</mat-icon>
                   <div>
-                    <strong>Daily Analyses</strong>
-                    <p>{{ user.userTier === 'premium' ? 'Unlimited' : '3 per day' }}</p>
+                    <span class="label">Next Billing Date</span>
+                    <span class="value">{{ getNextBillingDate() }}</span>
                   </div>
                 </div>
-                <div class="detail-item">
-                  <mat-icon>check_circle</mat-icon>
+                <div class="billing-item">
+                  <mat-icon>attach_money</mat-icon>
                   <div>
-                    <strong>AI Rewrite</strong>
-                    <p>{{ user.userTier === 'premium' ? 'Included' : 'Not available' }}</p>
+                    <span class="label">Amount</span>
+                    <span class="value">₹499/month</span>
                   </div>
                 </div>
-                <div class="detail-item">
-                  <mat-icon>check_circle</mat-icon>
+                <div class="billing-item">
+                  <mat-icon
+                    [ngClass]="{
+                      'status-icon-active': user.subscriptionStatus === 'active',
+                      'status-icon-cancelled': user.subscriptionStatus === 'cancelled',
+                      'status-icon-expired': user.subscriptionStatus === 'expired'
+                    }"
+                  >
+                    {{ user.subscriptionStatus === "active" ? "check_circle" : user.subscriptionStatus === "cancelled" ? "cancel" : "error" }}
+                  </mat-icon>
                   <div>
-                    <strong>Cover Letter Generation</strong>
-                    <p>{{ user.userTier === 'premium' ? 'Included' : 'Not available' }}</p>
-                  </div>
-                </div>
-                <div class="detail-item">
-                  <mat-icon>check_circle</mat-icon>
-                  <div>
-                    <strong>Priority Support</strong>
-                    <p>{{ user.userTier === 'premium' ? 'Included' : 'Not available' }}</p>
+                    <span class="label">Status</span>
+                    <span
+                      class="value"
+                      [ngClass]="{
+                        'status-active': user.subscriptionStatus === 'active',
+                        'status-cancelled': user.subscriptionStatus === 'cancelled',
+                        'status-expired': user.subscriptionStatus === 'expired'
+                      }"
+                      >{{ getSubscriptionStatus() }}</span
+                    >
                   </div>
                 </div>
               </div>
 
               <mat-divider></mat-divider>
 
-              <div class="subscription-actions">
-                <button mat-raised-button color="accent" routerLink="/pricing" 
-                        *ngIf="user.userTier === 'free'">
+              <div class="plan-details">
+                <h3>Plan Features</h3>
+                <div class="features-grid">
+                  <div class="feature-item" [class.included]="user.userTier === 'premium'">
+                    <mat-icon>{{ user.userTier === "premium" ? "check_circle" : "cancel" }}</mat-icon>
+                    <div>
+                      <strong>Daily Analyses</strong>
+                      <p>{{ user.userTier === "premium" ? "Unlimited" : "3 per day" }}</p>
+                    </div>
+                  </div>
+                  <div class="feature-item" [class.included]="user.userTier === 'premium'">
+                    <mat-icon>{{ user.userTier === "premium" ? "check_circle" : "cancel" }}</mat-icon>
+                    <div>
+                      <strong>Job Description Matching</strong>
+                      <p>{{ user.userTier === "premium" ? "Included" : "Premium only" }}</p>
+                    </div>
+                  </div>
+                  <div class="feature-item" [class.included]="user.userTier === 'premium'">
+                    <mat-icon>{{ user.userTier === "premium" ? "check_circle" : "cancel" }}</mat-icon>
+                    <div>
+                      <strong>AI Rewrite</strong>
+                      <p>{{ user.userTier === "premium" ? "Included" : "Premium only" }}</p>
+                    </div>
+                  </div>
+                  <div class="feature-item" [class.included]="user.userTier === 'premium'">
+                    <mat-icon>{{ user.userTier === "premium" ? "check_circle" : "cancel" }}</mat-icon>
+                    <div>
+                      <strong>Priority Support</strong>
+                      <p>{{ user.userTier === "premium" ? "Included" : "Premium only" }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <mat-divider></mat-divider>
+
+              <!-- Subscription Actions - Only show if not cancelled -->
+              <div class="subscription-actions" *ngIf="user.subscriptionStatus !== 'cancelled'">
+                <button mat-raised-button color="accent" (click)="upgradePlan()" *ngIf="user.userTier === 'free'">
                   <mat-icon>upgrade</mat-icon>
                   Upgrade to Premium
                 </button>
-                <button mat-button *ngIf="user.userTier === 'premium'">
-                  <mat-icon>credit_card</mat-icon>
-                  Manage Billing
-                </button>
-                <button mat-button *ngIf="user.userTier === 'premium'">
+                <button
+                  mat-raised-button
+                  color="warn"
+                  (click)="cancelSubscription()"
+                  *ngIf="user.userTier === 'premium' && user.subscriptionStatus === 'active'"
+                  [disabled]="loading"
+                >
                   <mat-icon>cancel</mat-icon>
-                  Cancel Subscription
+                  Cancel Subscription (Immediate)
                 </button>
               </div>
+
+              <!-- Cancellation Warning - Only show for active premium -->
+              <div class="cancellation-warning" *ngIf="user.userTier === 'premium' && user.subscriptionStatus === 'active'">
+                <mat-icon>warning</mat-icon>
+                <p>
+                  <strong>Important:</strong> Cancelling your subscription will immediately revoke all premium features and downgrade you to the free plan. This action cannot be
+                  undone.
+                </p>
+              </div>
+
+              <!-- Cancelled Status Message -->
+              <div class="cancelled-message" *ngIf="user.subscriptionStatus === 'cancelled'">
+                <mat-icon>info</mat-icon>
+                <p>
+                  Your subscription was cancelled on <strong>{{ formatDate(user.cancelledAt) }}</strong
+                  >. You can view your subscription history below or upgrade to premium again.
+                </p>
+                <button mat-raised-button color="accent" (click)="upgradePlan()">
+                  <mat-icon>upgrade</mat-icon>
+                  Upgrade to Premium
+                </button>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Subscription History -->
+          <mat-card class="history-card">
+            <mat-card-content>
+              <div class="history-header">
+                <div class="history-title">
+                  <h2>Subscription History</h2>
+                  <span class="subscription-count" *ngIf="subscriptionHistory.length > 0">
+                    {{ subscriptionHistory.length }} {{ subscriptionHistory.length === 1 ? "Subscription" : "Subscriptions" }}
+                  </span>
+                </div>
+                <p class="subtitle">View your past subscriptions and payments</p>
+              </div>
+
+              <div *ngIf="loadingHistory" class="loading-state">
+                <mat-spinner diameter="40"></mat-spinner>
+                <p>Loading history...</p>
+              </div>
+
+              <div *ngIf="!loadingHistory && subscriptionHistory.length === 0" class="empty-state">
+                <mat-icon>receipt_long</mat-icon>
+                <h3>No Subscription History</h3>
+                <p>You haven't made any subscription purchases yet.</p>
+                <button mat-raised-button color="accent" (click)="upgradePlan()">
+                  <mat-icon>upgrade</mat-icon>
+                  Upgrade to Premium
+                </button>
+              </div>
+
+              <!-- Subscription Summary Stats -->
+              <div *ngIf="!loadingHistory && subscriptionHistory.length > 0" class="subscription-stats">
+                <div class="stat-card">
+                  <mat-icon>shopping_bag</mat-icon>
+                  <div class="stat-info">
+                    <span class="stat-value">{{ subscriptionHistory.length }}</span>
+                    <span class="stat-label">Total Subscriptions</span>
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <mat-icon>payments</mat-icon>
+                  <div class="stat-info">
+                    <span class="stat-value">{{ getTotalSpent() }}</span>
+                    <span class="stat-label">Total Spent</span>
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <mat-icon>check_circle</mat-icon>
+                  <div class="stat-info">
+                    <span class="stat-value">{{ getCompletedCount() }}</span>
+                    <span class="stat-label">Completed</span>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="!loadingHistory && subscriptionHistory.length > 0" class="history-list">
+                <div class="history-item" *ngFor="let item of paginatedHistory">
+                  <div class="history-item-header">
+                    <div class="history-item-info">
+                      <h4>{{ item.planId === "one-time" ? "Lite Plan (One-Time)" : "Pro Plan (Monthly)" }}</h4>
+                      <span class="history-date">Payment Date: {{ formatDate(item.createdAt) }}</span>
+                    </div>
+                    <div class="history-item-status">
+                      <span class="status-badge" [ngClass]="getStatusBadgeClass(item.status)">
+                        {{ item.status | titlecase }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Payment Details -->
+                  <div class="history-item-details">
+                    <div class="detail-item">
+                      <mat-icon>payments</mat-icon>
+                      <div class="detail-text">
+                        <span class="detail-label">Amount</span>
+                        <span class="detail-value">{{ formatCurrency(item.amount, item.currency) }}</span>
+                      </div>
+                    </div>
+                    <div class="detail-item">
+                      <mat-icon>credit_card</mat-icon>
+                      <div class="detail-text">
+                        <span class="detail-label">Provider</span>
+                        <span class="detail-value">{{ item.provider | titlecase }}</span>
+                      </div>
+                    </div>
+                    <div class="detail-item" *ngIf="item.providerPaymentId">
+                      <mat-icon>receipt</mat-icon>
+                      <div class="detail-text">
+                        <span class="detail-label">Transaction ID</span>
+                        <span class="detail-value payment-id">{{ item.providerPaymentId }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Subscription Period -->
+                  <div class="subscription-period">
+                    <div class="period-item">
+                      <mat-icon>event</mat-icon>
+                      <div class="period-text">
+                        <span class="period-label">Subscription Start</span>
+                        <span class="period-value">{{ formatDate(item.subscriptionStartDate || item.createdAt) }}</span>
+                      </div>
+                    </div>
+                    <div class="period-item" *ngIf="item.planId === 'monthly'">
+                      <mat-icon>event_available</mat-icon>
+                      <div class="period-text">
+                        <span class="period-label">Subscription End</span>
+                        <span class="period-value">{{ formatDate(item.subscriptionEndDate) || getSubscriptionEndDate(item.createdAt) }}</span>
+                      </div>
+                    </div>
+                    <div class="period-item" *ngIf="item.planId === 'one-time'">
+                      <mat-icon>all_inclusive</mat-icon>
+                      <div class="period-text">
+                        <span class="period-label">Duration</span>
+                        <span class="period-value">One-time access</span>
+                      </div>
+                    </div>
+                    <div class="period-item">
+                      <mat-icon>info</mat-icon>
+                      <div class="period-text">
+                        <span class="period-label">Payment Status</span>
+                        <span
+                          class="period-value"
+                          [ngClass]="{
+                            'status-active': item.status === 'completed',
+                            'status-cancelled': item.status === 'refunded',
+                            'status-expired': item.status === 'failed',
+                            'status-pending': item.status === 'pending'
+                          }"
+                        >
+                          {{ getPaymentStatusText(item.status) }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Paginator -->
+              <mat-paginator
+                *ngIf="!loadingHistory && subscriptionHistory.length > 0"
+                [length]="totalItems"
+                [pageSize]="pageSize"
+                [pageIndex]="pageIndex"
+                [pageSizeOptions]="[5, 10, 25]"
+                (page)="onPageChange($event)"
+                showFirstLastButtons
+              >
+              </mat-paginator>
             </mat-card-content>
           </mat-card>
         </div>
@@ -263,13 +476,13 @@
           <mat-icon>warning</mat-icon>
           <span>Danger Zone</span>
         </ng-template>
-        
+
         <div class="tab-content">
           <mat-card class="danger-card">
             <mat-card-content>
               <h2>Delete Account</h2>
               <p class="subtitle">Permanently delete your account and all associated data</p>
-              
+
               <div class="danger-warning">
                 <mat-icon>error</mat-icon>
                 <div>

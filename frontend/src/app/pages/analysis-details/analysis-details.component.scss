@@ -307,3 +307,155 @@
     }
   }
 }
+
+
+// Enhanced Mobile Responsiveness
+@media (max-width: 968px) {
+  .analysis-container {
+    padding: 16px 12px;
+  }
+
+  .analysis-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+
+    .header-info h1 {
+      font-size: 1.75rem;
+    }
+
+    .header-actions {
+      width: 100%;
+      flex-wrap: wrap;
+
+      button {
+        flex: 1;
+        min-width: calc(50% - 6px);
+      }
+    }
+  }
+
+  .score-section {
+    .score-grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .section-card {
+    mat-card-content {
+      padding: 20px 16px !important;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+    }
+  }
+
+  .recommendations-list,
+  .improvements-list,
+  .keywords-list {
+    .list-item {
+      padding: 12px;
+      font-size: 0.9rem;
+    }
+  }
+
+  .share-section {
+    .share-options {
+      flex-direction: column;
+      gap: 12px;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .analysis-header {
+    .header-info {
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .analysis-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+    }
+
+    .header-actions {
+      button {
+        padding: 10px 12px !important;
+        font-size: 0.85rem !important;
+
+        mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+      }
+    }
+  }
+
+  .score-card {
+    .score-circle {
+      width: 100px;
+      height: 100px;
+
+      .score-value {
+        font-size: 2rem;
+      }
+    }
+
+    .score-label {
+      font-size: 0.875rem;
+    }
+  }
+
+  .section-card {
+    h2 {
+      font-size: 1.125rem;
+    }
+
+    .list-item {
+      padding: 10px;
+      font-size: 0.85rem;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+    }
+  }
+
+  .keywords-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .keyword-chip {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+}
+
+// Tablet Optimization
+@media (min-width: 769px) and (max-width: 1024px) {
+  .score-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+}

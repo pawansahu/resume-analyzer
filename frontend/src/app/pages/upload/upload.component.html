@@ -189,11 +189,28 @@
         [recommendations]="recommendations">
       </app-recommendations-list>
 
-      <!-- JD Comparison (if available) -->
+      <!-- JD Comparison (Premium Only) -->
       <app-jd-comparison 
-        *ngIf="analysisId"
+        *ngIf="analysisId && isPremium"
         [analysisId]="analysisId">
       </app-jd-comparison>
+      
+      <!-- Premium Feature Prompt -->
+      <mat-card class="premium-feature-card" *ngIf="analysisId && !isPremium">
+        <mat-card-content>
+          <div class="premium-feature-content">
+            <mat-icon class="premium-icon">workspace_premium</mat-icon>
+            <div class="premium-text">
+              <h3>Compare with Job Description</h3>
+              <p>Upgrade to Premium to match your resume against specific job postings and get tailored recommendations.</p>
+            </div>
+            <button mat-raised-button color="accent" routerLink="/pricing">
+              <mat-icon>upgrade</mat-icon>
+              Upgrade to Premium
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
     </div>
 
     <!-- Features Info (when no file uploaded) -->

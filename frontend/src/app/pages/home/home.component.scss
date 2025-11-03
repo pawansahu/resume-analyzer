@@ -488,3 +488,136 @@
     }
   }
 }
+
+
+// Additional Mobile Responsiveness
+@media (max-width: 480px) {
+  .hero-section {
+    padding: 40px 0;
+
+    h1 {
+      font-size: 1.875rem !important;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      font-size: 0.95rem !important;
+    }
+
+    .hero-buttons {
+      flex-direction: column;
+      gap: 12px;
+
+      button {
+        width: 100%;
+        padding: 12px 20px !important;
+      }
+    }
+  }
+
+  .features-section {
+    padding: 40px 0;
+
+    .section-header h2 {
+      font-size: 1.75rem !important;
+    }
+
+    .feature-card {
+      padding: 20px;
+
+      .feature-icon {
+        width: 50px;
+        height: 50px;
+
+        mat-icon {
+          font-size: 28px;
+        }
+      }
+
+      h3 {
+        font-size: 1.125rem;
+      }
+    }
+  }
+
+  .stats-section {
+    padding: 40px 0;
+
+    .stats-grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .stat-item {
+      .stat-number {
+        font-size: 2rem !important;
+      }
+
+      .stat-label {
+        font-size: 0.875rem;
+      }
+    }
+  }
+
+  .how-it-works-section {
+    padding: 40px 0;
+
+    .section-header h2 {
+      font-size: 1.75rem !important;
+    }
+
+    .step-card {
+      padding: 20px;
+
+      .step-number {
+        width: 40px;
+        height: 40px;
+        font-size: 1.25rem;
+      }
+
+      h3 {
+        font-size: 1.125rem;
+      }
+    }
+  }
+
+  .cta-section {
+    padding: 40px 0;
+
+    .cta-content {
+      padding: 32px 20px;
+
+      h2 {
+        font-size: 1.75rem !important;
+      }
+
+      p {
+        font-size: 0.95rem;
+      }
+
+      .cta-buttons {
+        flex-direction: column;
+        gap: 12px;
+
+        button {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+
+// Tablet Optimization
+@media (min-width: 769px) and (max-width: 1024px) {
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .how-it-works-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

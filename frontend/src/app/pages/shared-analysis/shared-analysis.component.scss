@@ -309,3 +309,117 @@
     }
   }
 }
+
+
+// Enhanced Mobile Responsiveness
+@media (max-width: 968px) {
+  .shared-analysis-container {
+    padding: 16px 12px;
+  }
+
+  .shared-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+
+    .header-info h1 {
+      font-size: 1.75rem;
+    }
+
+    .header-actions {
+      width: 100%;
+
+      button {
+        flex: 1;
+      }
+    }
+  }
+
+  .score-section {
+    .score-grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .branding-footer {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+
+    .footer-actions {
+      width: 100%;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .shared-header {
+    .header-info {
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .analysis-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        font-size: 0.85rem;
+      }
+    }
+
+    .header-actions {
+      button {
+        padding: 10px 16px !important;
+        font-size: 0.85rem !important;
+      }
+    }
+  }
+
+  .score-card {
+    .score-circle {
+      width: 100px;
+      height: 100px;
+
+      .score-value {
+        font-size: 2rem;
+      }
+    }
+  }
+
+  .section-card {
+    mat-card-content {
+      padding: 16px !important;
+    }
+
+    h2 {
+      font-size: 1.125rem;
+    }
+
+    .list-item {
+      padding: 10px;
+      font-size: 0.85rem;
+    }
+  }
+
+  .branding-footer {
+    padding: 20px;
+
+    .brand-logo {
+      font-size: 1.25rem;
+    }
+
+    p {
+      font-size: 0.85rem;
+    }
+  }
+}

@@ -439,3 +439,92 @@
     }
   }
 }
+
+
+// Enhanced Mobile Responsiveness
+@media (max-width: 768px) {
+  .register-container {
+    padding: 40px 16px;
+  }
+
+  .register-card {
+    max-width: 100%;
+    margin: 0;
+
+    mat-card-content {
+      padding: 32px 20px !important;
+    }
+  }
+
+  .register-header {
+    h1 {
+      font-size: 2rem;
+    }
+
+    p {
+      font-size: 0.95rem;
+    }
+  }
+
+  .name-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .form-actions {
+    button {
+      padding: 14px 24px !important;
+    }
+  }
+
+  .divider {
+    margin: 24px 0;
+  }
+
+  .login-link {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .register-container {
+    padding: 32px 12px;
+  }
+
+  .register-card {
+    mat-card-content {
+      padding: 24px 16px !important;
+    }
+  }
+
+  .register-header {
+    h1 {
+      font-size: 1.75rem;
+    }
+
+    p {
+      font-size: 0.875rem;
+    }
+  }
+
+  .register-form {
+    mat-form-field {
+      font-size: 0.9rem;
+    }
+  }
+
+  .form-actions {
+    button {
+      padding: 12px 20px !important;
+      font-size: 0.9rem !important;
+    }
+  }
+
+  .terms-text {
+    font-size: 0.8rem;
+  }
+
+  .login-link {
+    font-size: 0.85rem;
+  }
+}

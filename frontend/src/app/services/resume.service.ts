@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
 import { Observable, throwError, timer } from 'rxjs';
-import { catchError, map, retry, retryWhen, mergeMap, finalize } from 'rxjs/operators';
+import { catchError, map, retry, retryWhen, mergeMap, finalize, timeout } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 export interface ParsedResume {
@@ -172,11 +172,19 @@ export class ResumeService {
    * Get user's recent analyses
    */
   getUserAnalyses(limit: number = 10): Observable<any> {
+    console.log('=== API CALL START ===');
+    console.log('Limit:', limit);
+    console.log('URL:', `${this.apiUrl}/resume/my-analyses`);
+    
     return this.http.get(`${this.apiUrl}/resume/my-analyses`, {
       params: { limit: limit.toString() }
     }).pipe(
+      map(response => {
+        console.log('=== API RESPONSE ===', response);
+        return response;
+      }),
       catchError(error => {
-        console.error('Error fetching user analyses:', error);
+        console.error('=== API ERROR ===', error);
         return throwError(() => error);
       })
     );
@@ -294,9 +302,21 @@ export class ResumeService {
    * Get user's current usage information
    */
   getUserUsage(): Observable<any> {
+    console.log('ResumeService - Fetching usage data...');
+    
     return this.http.get(`${this.apiUrl}/resume/usage`).pipe(
+      timeout(10000), // 10 second timeout
+      map(response => {
+        console.log('ResumeService - Usage response:', response);
+        return response;
+      }),
       catchError(error => {
-        console.error('Error fetching usage info:', error);
+        console.error('ResumeService - Error fetching usage info:', error);
+        
+        if (error.name === 'TimeoutError') {
+          console.error('ResumeService - Usage request timed out after 10 seconds');
+        }
+        
         return throwError(() => error);
       })
     );

@@ -40,26 +40,40 @@
         </mat-card-content>
       </mat-card>
 
-      <mat-card class="action-card">
+      <mat-card class="action-card" [class.disabled-card]="!isPremiumFeatureEnabled()">
         <mat-card-content>
           <mat-icon class="large-icon">description</mat-icon>
           <h2>Compare with Job Description</h2>
           <p>Match your resume against a specific job posting</p>
-          <button mat-raised-button color="accent" routerLink="/upload">
+          <div class="premium-badge" *ngIf="!isPremiumFeatureEnabled()">
+            <mat-icon>workspace_premium</mat-icon>
+            <span>Premium</span>
+          </div>
+          <button mat-raised-button color="accent" 
+                  [disabled]="!isPremiumFeatureEnabled()" 
+                  [routerLink]="isPremiumFeatureEnabled() ? '/upload' : null"
+                  (click)="!isPremiumFeatureEnabled() && navigateToPricing()">
             <mat-icon>compare</mat-icon>
-            Compare Now
+            {{ isPremiumFeatureEnabled() ? 'Compare Now' : 'Upgrade to Access' }}
           </button>
         </mat-card-content>
       </mat-card>
 
-      <mat-card class="action-card">
+      <mat-card class="action-card" [class.disabled-card]="!isPremiumFeatureEnabled()">
         <mat-card-content>
           <mat-icon class="large-icon">auto_fix_high</mat-icon>
           <h2>AI Rewrite</h2>
           <p>Get AI-powered suggestions to improve your resume</p>
-          <button mat-raised-button [disabled]="user.tier === 'free'" [routerLink]="user.tier === 'free' ? '/pricing' : '/upload'">
+          <div class="premium-badge" *ngIf="!isPremiumFeatureEnabled()">
+            <mat-icon>workspace_premium</mat-icon>
+            <span>Premium</span>
+          </div>
+          <button mat-raised-button 
+                  [disabled]="!isPremiumFeatureEnabled()" 
+                  [routerLink]="isPremiumFeatureEnabled() ? '/upload' : null"
+                  (click)="!isPremiumFeatureEnabled() && navigateToPricing()">
             <mat-icon>stars</mat-icon>
-            {{ user.tier === 'free' ? 'Premium Only' : 'Start Rewrite' }}
+            {{ isPremiumFeatureEnabled() ? 'Start Rewrite' : 'Upgrade to Access' }}
           </button>
         </mat-card-content>
       </mat-card>
@@ -74,7 +88,7 @@
             <p class="header-subtitle">Your latest resume analysis results</p>
           </div>
         </div>
-        <button mat-button class="view-all-btn" *ngIf="recentAnalyses.length > 0">
+        <button mat-button class="view-all-btn" *ngIf="recentAnalyses.length > 0" routerLink="/all-analyses">
           <span>View All</span>
           <mat-icon>arrow_forward</mat-icon>
         </button>

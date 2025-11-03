@@ -36,7 +36,7 @@
           {{ analysisData.fileName }}
           <span class="separator">•</span>
           <mat-icon>schedule</mat-icon>
-          {{ analysisData.createdAt | date:'mediumDate' }}
+          {{ analysisData.createdAt | date : "mediumDate" }}
         </p>
       </div>
       <div class="header-actions">
@@ -89,23 +89,19 @@
     </mat-card>
 
     <!-- ATS Score Card -->
-    <app-ats-score-card 
-      [score]="atsScore?.totalScore || 0"
-      [loading]="false">
-    </app-ats-score-card>
+    <app-ats-score-card [score]="atsScore?.totalScore || 0" [loading]="false"> </app-ats-score-card>
 
     <!-- Score Breakdown -->
-    <app-score-breakdown 
+    <app-score-breakdown
       [structureScore]="atsScore?.structureScore || 0"
       [keywordScore]="atsScore?.keywordScore || 0"
       [readabilityScore]="atsScore?.readabilityScore || 0"
-      [formattingScore]="atsScore?.formattingScore || 0">
+      [formattingScore]="atsScore?.formattingScore || 0"
+    >
     </app-score-breakdown>
 
     <!-- Recommendations -->
-    <app-recommendations-list 
-      [recommendations]="recommendations">
-    </app-recommendations-list>
+    <app-recommendations-list [recommendations]="recommendations"> </app-recommendations-list>
 
     <!-- Call to Action -->
     <mat-card class="cta-card">
@@ -136,7 +132,7 @@
     <div class="watermark">
       <p>
         <mat-icon>verified</mat-icon>
-        Powered by Resume Analyzer - 
+        Powered by Resume Analyzer -
         <a routerLink="/" target="_blank">Get your free analysis</a>
       </p>
     </div>

@@ -320,13 +320,97 @@ p {
 
 .full-width { width: 100%; }
 
-/* Responsive */
+/* Responsive Utilities */
+.hide-mobile {
+  @media (max-width: 768px) {
+    display: none !important;
+  }
+}
+
+.hide-desktop {
+  @media (min-width: 769px) {
+    display: none !important;
+  }
+}
+
+.show-mobile {
+  display: none !important;
+  @media (max-width: 768px) {
+    display: block !important;
+  }
+}
+
+/* Responsive Typography */
+@media (max-width: 1200px) {
+  h1 { font-size: 2.5rem; }
+  h2 { font-size: 2rem; }
+  h3 { font-size: 1.625rem; }
+  h4 { font-size: 1.375rem; }
+}
+
 @media (max-width: 768px) {
   h1 { font-size: 2rem; }
   h2 { font-size: 1.75rem; }
   h3 { font-size: 1.5rem; }
+  h4 { font-size: 1.25rem; }
   
   .container {
     padding: 0 16px;
+  }
+  
+  .mat-mdc-raised-button {
+    padding: 12px 20px !important;
+    font-size: 0.9rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 { font-size: 1.75rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.25rem; }
+  h4 { font-size: 1.125rem; }
+  
+  .container {
+    padding: 0 12px;
+  }
+  
+  .mat-mdc-raised-button {
+    padding: 10px 16px !important;
+    font-size: 0.875rem !important;
+    width: 100%;
+  }
+  
+  .mat-mdc-card {
+    margin: 8px 0 !important;
+  }
+}
+
+/* Responsive Grid */
+.responsive-grid {
+  display: grid;
+  gap: 24px;
+  
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  @media (min-width: 768px) and (max-width: 1199px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* Responsive Flex */
+.responsive-flex {
+  display: flex;
+  gap: 20px;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 16px;
   }
 }

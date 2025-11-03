@@ -380,3 +380,87 @@
     }
   }
 }
+
+
+// Enhanced Mobile Responsiveness
+@media (max-width: 768px) {
+  .login-container {
+    padding: 40px 16px;
+  }
+
+  .login-card {
+    max-width: 100%;
+    margin: 0;
+
+    mat-card-content {
+      padding: 32px 20px !important;
+    }
+  }
+
+  .login-header {
+    h1 {
+      font-size: 2rem;
+    }
+
+    p {
+      font-size: 0.95rem;
+    }
+  }
+
+  .form-actions {
+    button {
+      padding: 14px 24px !important;
+    }
+  }
+
+  .divider {
+    margin: 24px 0;
+  }
+
+  .signup-link {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    padding: 32px 12px;
+  }
+
+  .login-card {
+    mat-card-content {
+      padding: 24px 16px !important;
+    }
+  }
+
+  .login-header {
+    h1 {
+      font-size: 1.75rem;
+    }
+
+    p {
+      font-size: 0.875rem;
+    }
+  }
+
+  .login-form {
+    mat-form-field {
+      font-size: 0.9rem;
+    }
+  }
+
+  .form-actions {
+    button {
+      padding: 12px 20px !important;
+      font-size: 0.9rem !important;
+    }
+  }
+
+  .forgot-password {
+    font-size: 0.85rem;
+  }
+
+  .signup-link {
+    font-size: 0.85rem;
+  }
+}

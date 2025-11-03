@@ -36,7 +36,6 @@ export class NavbarComponent implements OnInit {
   // Authenticated navigation links (visible only to logged-in users)
   authNavLinks = [
     { path: '/', label: 'Home', icon: 'home' },
-    { path: '/upload', label: 'Upload', icon: 'cloud_upload' },
     { path: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
     { path: '/pricing', label: 'Pricing', icon: 'payments' },
     { path: '/contact', label: 'Contact', icon: 'contact_mail' }

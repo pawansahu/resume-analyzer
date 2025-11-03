@@ -133,16 +133,30 @@ export class AuthService {
    */
   refreshUserData(): void {
     // Re-fetch user profile to get updated tier and subscription info
-    this.http.get<{ success: boolean; user: User }>(`${this.apiUrl}/auth/profile`).subscribe({
+    this.http.get<{ success: boolean; data: any }>(`${this.apiUrl}/auth/me`).subscribe({
       next: (response) => {
-        if (response.success && response.user) {
-          localStorage.setItem('currentUser', JSON.stringify(response.user));
-          this.currentUserSubject.next(response.user);
+        if (response.success && response.data) {
+          localStorage.setItem('currentUser', JSON.stringify(response.data));
+          this.currentUserSubject.next(response.data);
         }
       },
       error: (error) => {
         console.error('Error refreshing user data:', error);
       }
     });
+  }
+
+  /**
+   * Refresh user profile and return Observable
+   */
+  refreshUserProfile(): Observable<{ success: boolean; data: any }> {
+    return this.http.get<{ success: boolean; data: any }>(`${this.apiUrl}/auth/me`).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          localStorage.setItem('currentUser', JSON.stringify(response.data));
+          this.currentUserSubject.next(response.data);
+        }
+      })
+    );
   }
 }

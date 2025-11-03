@@ -709,6 +709,64 @@
   }
 }
 
+// Premium Feature Card
+.premium-feature-card {
+  margin-top: 32px;
+  border-radius: 20px !important;
+  background: linear-gradient(135deg, #fff5f5 0%, #fef5e7 100%) !important;
+  border: 2px solid #f6ad55 !important;
+  box-shadow: 0 10px 30px rgba(246, 173, 85, 0.2) !important;
+
+  mat-card-content {
+    padding: 32px !important;
+  }
+
+  .premium-feature-content {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+
+    .premium-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      color: #f6ad55;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .premium-text {
+      flex: 1;
+
+      h3 {
+        margin: 0 0 8px 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: #744210;
+      }
+
+      p {
+        margin: 0;
+        font-size: 16px;
+        color: #975a16;
+        line-height: 1.6;
+      }
+    }
+
+    button {
+      height: 48px !important;
+      font-size: 16px !important;
+      font-weight: 600 !important;
+      padding: 0 32px !important;
+      border-radius: 12px !important;
+      white-space: nowrap;
+
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
 // Animations
 @keyframes fadeInUp {
   from {
@@ -832,5 +890,205 @@
 
   .analysis-results {
     gap: 24px;
+  }
+
+  .premium-feature-card {
+    .premium-feature-content {
+      flex-direction: column;
+      text-align: center;
+
+      .premium-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+      }
+
+      .premium-text {
+        h3 {
+          font-size: 20px;
+        }
+
+        p {
+          font-size: 14px;
+        }
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+}
+
+
+// Enhanced Mobile Responsiveness
+@media (max-width: 768px) {
+  .upload-container {
+    padding: 16px 12px;
+  }
+
+  .upload-header {
+    h1 {
+      font-size: 1.75rem;
+    }
+
+    p {
+      font-size: 0.95rem;
+    }
+  }
+
+  .upload-card {
+    mat-card-content {
+      padding: 20px 16px !important;
+    }
+  }
+
+  .upload-zone {
+    padding: 32px 16px;
+    min-height: 200px;
+
+    mat-icon {
+      font-size: 48px !important;
+      width: 48px !important;
+      height: 48px !important;
+    }
+
+    h3 {
+      font-size: 1.125rem;
+    }
+
+    p {
+      font-size: 0.875rem;
+    }
+  }
+
+  .file-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+
+    .file-details {
+      width: 100%;
+    }
+
+    .file-actions {
+      width: 100%;
+      justify-content: flex-start;
+    }
+  }
+
+  .job-description-section {
+    .section-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+
+      h3 {
+        font-size: 1.125rem;
+      }
+    }
+
+    .job-description-input {
+      min-height: 150px;
+    }
+  }
+
+  .upload-actions {
+    flex-direction: column;
+    gap: 12px;
+
+    button {
+      width: 100%;
+      height: 48px !important;
+    }
+  }
+
+  .usage-info {
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+
+    .usage-text {
+      text-align: center;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .upload-header {
+    h1 {
+      font-size: 1.5rem;
+    }
+
+    p {
+      font-size: 0.875rem;
+    }
+  }
+
+  .upload-zone {
+    padding: 24px 12px;
+    min-height: 180px;
+
+    mat-icon {
+      font-size: 40px !important;
+      width: 40px !important;
+      height: 40px !important;
+    }
+
+    h3 {
+      font-size: 1rem;
+    }
+
+    p {
+      font-size: 0.8rem;
+    }
+
+    button {
+      padding: 10px 16px !important;
+      font-size: 0.875rem !important;
+    }
+  }
+
+  .file-info {
+    padding: 12px;
+
+    .file-icon mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+    }
+
+    .file-name {
+      font-size: 0.9rem;
+    }
+
+    .file-size {
+      font-size: 0.8rem;
+    }
+  }
+
+  .job-description-section {
+    .section-header h3 {
+      font-size: 1rem;
+    }
+
+    .job-description-input {
+      min-height: 120px;
+      font-size: 0.875rem;
+    }
+  }
+
+  .usage-info {
+    padding: 12px;
+
+    .usage-icon mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    .usage-text {
+      font-size: 0.8rem;
+    }
   }
 }

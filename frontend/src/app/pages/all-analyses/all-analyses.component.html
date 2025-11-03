@@ -1,0 +1,196 @@
+<div class="all-analyses-container">
+  <!-- SVG Gradients -->
+  <svg width="0" height="0" style="position: absolute;">
+    <defs>
+      <linearGradient id="excellentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:1" />
+      </linearGradient>
+      <linearGradient id="goodGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#43e97b;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#38f9d7;stop-opacity:1" />
+      </linearGradient>
+      <linearGradient id="averageGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#fa709a;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#fee140;stop-opacity:1" />
+      </linearGradient>
+      <linearGradient id="poorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#f093fb;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#f5576c;stop-opacity:1" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <div class="container">
+    <!-- Header -->
+    <div class="page-header">
+      <button mat-icon-button (click)="goBack()" class="back-button">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-content">
+        <h1>
+          <mat-icon>history</mat-icon>
+          All Analyses
+        </h1>
+        <p>View and manage all your resume analyses</p>
+      </div>
+      <button mat-raised-button color="primary" routerLink="/upload">
+        <mat-icon>upload</mat-icon>
+        Upload New Resume
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="loading">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading your analyses...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-container" *ngIf="error && !loading">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <h3>Failed to load analyses</h3>
+      <p>There was an error loading your analyses.</p>
+      <button mat-raised-button color="primary" (click)="loadAnalyses()">
+        <mat-icon>refresh</mat-icon>
+        Try Again
+      </button>
+    </div>
+
+    <!-- Analyses Grid -->
+    <div class="analyses-grid" *ngIf="!loading && !error && analyses.length > 0">
+      <div *ngFor="let analysis of getPaginatedAnalyses()" class="analysis-card">
+        
+        <!-- Score Badge -->
+        <div class="score-badge" 
+             [ngClass]="{
+               'excellent': analysis.atsScore >= 80,
+               'good': analysis.atsScore >= 70 && analysis.atsScore < 80,
+               'average': analysis.atsScore >= 50 && analysis.atsScore < 70,
+               'poor': analysis.atsScore < 50
+             }">
+          <div class="score-circle">
+            <svg class="score-ring" viewBox="0 0 120 120">
+              <circle class="score-ring-bg" cx="60" cy="60" r="54" />
+              <circle class="score-ring-progress" 
+                      cx="60" cy="60" r="54"
+                      [attr.stroke-dashoffset]="getStrokeDashoffset(analysis.atsScore)" />
+            </svg>
+            <div class="score-content">
+              <span class="score-number">{{ analysis.atsScore }}</span>
+              <span class="score-max">/100</span>
+            </div>
+          </div>
+          <span class="score-status">{{ getScoreStatus(analysis.atsScore) }}</span>
+        </div>
+
+        <!-- File Info -->
+        <div class="file-info">
+          <div class="file-icon-wrapper">
+            <mat-icon class="file-icon">{{ getFileIcon(analysis.fileName) }}</mat-icon>
+          </div>
+          <div class="file-details">
+            <h3 class="file-name">{{ analysis.fileName }}</h3>
+            <div class="file-meta">
+              <span class="meta-item">
+                <mat-icon>schedule</mat-icon>
+                {{ analysis.date | date:'MMM d, y' }}
+              </span>
+              <span class="meta-item">
+                <mat-icon>access_time</mat-icon>
+                {{ analysis.date | date:'shortTime' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+          <div class="stat-item">
+            <mat-icon>check_circle</mat-icon>
+            <div>
+              <span class="stat-value">{{ analysis.matchedKeywords }}</span>
+              <span class="stat-label">Skills</span>
+            </div>
+          </div>
+          <div class="stat-item">
+            <mat-icon>format_align_left</mat-icon>
+            <div>
+              <span class="stat-value">{{ analysis.sections }}</span>
+              <span class="stat-label">Sections</span>
+            </div>
+          </div>
+          <div class="stat-item">
+            <mat-icon>description</mat-icon>
+            <div>
+              <span class="stat-value">{{ analysis.pages }}</span>
+              <span class="stat-label">Pages</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="card-actions">
+          <button mat-raised-button color="primary" (click)="viewAnalysisDetails(analysis.id)">
+            <mat-icon>visibility</mat-icon>
+            View Details
+          </button>
+          <button mat-icon-button class="action-icon-btn" (click)="downloadReport(analysis.id, $event)" matTooltip="Download Report">
+            <mat-icon>download</mat-icon>
+          </button>
+          <button mat-icon-button class="action-icon-btn" (click)="shareAnalysis(analysis.id, $event)" matTooltip="Share">
+            <mat-icon>share</mat-icon>
+          </button>
+          <button mat-icon-button class="action-icon-btn" matTooltip="More Options" [matMenuTriggerFor]="moreMenu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #moreMenu="matMenu">
+            <button mat-menu-item (click)="viewAnalysisDetails(analysis.id)">
+              <mat-icon>visibility</mat-icon>
+              <span>View Details</span>
+            </button>
+            <button mat-menu-item (click)="downloadReport(analysis.id)">
+              <mat-icon>download</mat-icon>
+              <span>Download PDF</span>
+            </button>
+            <button mat-menu-item (click)="shareAnalysis(analysis.id)">
+              <mat-icon>share</mat-icon>
+              <span>Share Analysis</span>
+            </button>
+            <button mat-menu-item>
+              <mat-icon>edit</mat-icon>
+              <span>Re-analyze</span>
+            </button>
+            <button mat-menu-item>
+              <mat-icon>delete</mat-icon>
+              <span>Delete</span>
+            </button>
+          </mat-menu>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <mat-paginator 
+      *ngIf="!loading && !error && analyses.length > pageSize"
+      [length]="totalAnalyses"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[5, 10, 25, 50]"
+      (page)="onPageChange($event)"
+      showFirstLastButtons>
+    </mat-paginator>
+
+    <!-- Empty State -->
+    <div class="no-data-card" *ngIf="!loading && !error && analyses.length === 0">
+      <div class="no-data-icon">
+        <mat-icon>description</mat-icon>
+      </div>
+      <h3>No Analyses Yet</h3>
+      <p>Upload your first resume to get started with ATS analysis</p>
+      <button mat-raised-button color="primary" routerLink="/upload">
+        <mat-icon>upload</mat-icon>
+        Upload Your First Resume
+      </button>
+    </div>
+  </div>
+</div>

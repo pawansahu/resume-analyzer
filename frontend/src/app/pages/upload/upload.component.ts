@@ -8,6 +8,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterLink } from '@angular/router';
 import { ResumeService, UploadProgress, ParsedResume } from '../../services/resume.service';
+import { AuthService } from '../../services/auth.service';
 import { AtsScoreCardComponent } from '../../components/ats-score-card/ats-score-card.component';
 import { ScoreBreakdownComponent } from '../../components/score-breakdown/score-breakdown.component';
 import { RecommendationsListComponent } from '../../components/recommendations-list/recommendations-list.component';
@@ -46,15 +47,30 @@ export class UploadComponent implements OnInit {
   usageCount = 0;
   usageLimit = 3;
   usageLimitReached = false;
+  
+  // User tier
+  userTier: string = 'free';
+  isPremium = false;
 
   constructor(
     private resumeService: ResumeService,
+    private authService: AuthService,
     private snackBar: MatSnackBar,
     private router: Router
   ) {}
 
   ngOnInit(): void {
+    this.loadUserTier();
     this.loadUsageInfo();
+  }
+
+  loadUserTier(): void {
+    this.authService.currentUser$.subscribe(user => {
+      if (user) {
+        this.userTier = user.userTier || 'free';
+        this.isPremium = this.userTier === 'premium' || this.userTier === 'admin';
+      }
+    });
   }
 
   loadUsageInfo(): void {
